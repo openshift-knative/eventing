@@ -30,7 +30,7 @@ var yaml embed.FS
 func Example() {
 	ctx := testlog.NewContext()
 	images := map[string]string{
-		"registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-event-flaker": "gcr.io/knative-samples/helloworld-go",
+		"registry.ci.openshift.org/openshift/knative-v1.8:knative-eventing-test-event-flaker": "gcr.io/knative-samples/helloworld-go",
 	}
 	cfg := map[string]interface{}{
 		"name":      "foo",

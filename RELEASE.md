@@ -7,7 +7,7 @@ No manual creation of a midstream `release-v1.x` branch is needed. The nightly J
 ## Enable CI for the release branch
 
 * Create a fork and clone of https://github.com/openshift/release into your `$GOPATH`
-* On your `openshift/knative-eventing` root folder checkout the new `release-vX.Y` branch and run:
+* On your `openshift-knative/eventing` root folder checkout the new `release-vX.Y` branch and run:
 
 ```bash
 # Invoke CI config generation, and mirroring images
@@ -23,12 +23,12 @@ make[1]: Leaving directory '/home/matzew/go/src/github.com/openshift/release'
 │ Summary...                                                 │
 └────────────────────────────────────────────────────────────┘
 │─── New files in /home/matzew/go/src/github.com/openshift/release
-ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v1.4__410.yaml
-ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v1.4__48.yaml
-ci-operator/config/openshift/knative-eventing/openshift-knative-eventing-release-v1.4__49.yaml
-ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v1.4-periodics.yaml
-ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v1.4-postsubmits.yaml
-ci-operator/jobs/openshift/knative-eventing/openshift-knative-eventing-release-v1.4-presubmits.yaml
+ci-operator/config/openshift-knative/eventing/openshift-knative-eventing-release-v1.4__410.yaml
+ci-operator/config/openshift-knative/eventing/openshift-knative-eventing-release-v1.4__48.yaml
+ci-operator/config/openshift-knative/eventing/openshift-knative-eventing-release-v1.4__49.yaml
+ci-operator/jobs/openshift-knative/eventing/openshift-knative-eventing-release-v1.4-periodics.yaml
+ci-operator/jobs/openshift-knative/eventing/openshift-knative-eventing-release-v1.4-postsubmits.yaml
+ci-operator/jobs/openshift-knative/eventing/openshift-knative-eventing-release-v1.4-presubmits.yaml
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Commit changes to /home/matzew/go/src/github.com/openshift/release and create a PR                                     │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

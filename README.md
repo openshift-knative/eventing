@@ -86,7 +86,7 @@ following documentation.
 
 The job manifests for the CI jobs are generated automatically. The
 basic configuration lives in the
-[/ci-operator/config/openshift/knative-eventing](https://github.com/openshift/release/tree/master/ci-operator/config/openshift/knative-eventing) folder of the
+[/ci-operator/config/openshift-knative/eventing](https://github.com/openshift/release/tree/master/ci-operator/config/openshift-knative/eventing) folder of the
 [openshift/release](https://github.com/openshift/release) repository. These files include which version to
 build against (OCP 4.0 for our recent cases), which images to build
 (this includes all the images needed to run Knative and also all the
@@ -96,12 +96,12 @@ for the CI jobs to run (more on this later).
 Before we can create the ci-operator configs mentioned above, we need
 to make sure there are Dockerfiles for all images that we need
 (they’ll be referenced by the ci-operator config hence we need to
-create them first). The [generate-dockerfiles.sh](https://github.com/openshift/knative-eventing/blob/master/openshift/ci-operator/generate-dockerfiles.sh) script takes care of
+create them first). The [generate-dockerfiles.sh](https://github.com/openshift-knative/eventing/blob/master/openshift/ci-operator/generate-dockerfiles.sh) script takes care of
 creating all the Dockerfiles needed automatically. The files now need
 to be committed to the branch that CI is being setup for.
 
 The basic ci-operator configs mentioned above are generated via the
-generate-release.sh file in the openshift/knative-eventing
+generate-release.sh file in the openshift-knative/eventing
 repository. They are generated to alleviate the burden of having to
 add all possible test images to the manifest manually, which is error
 prone. That script calls `generate-ci-config.sh` for generating the files.
@@ -164,7 +164,7 @@ steps 1. and 2. below.
 
 #### Update OLM metadata
 
-1. The following instructions amount to mirroring upstream changes in the OLM manifests beneath [openshift/olm](https://github.com/openshift/knative-eventing/tree/master/openshift/olm) in our forks.
+1. The following instructions amount to mirroring upstream changes in the OLM manifests beneath [openshift/olm](https://github.com/openshift-knative/eventing/tree/master/openshift/olm) in our forks.
 2. Create a new `*.clusterserviceversion.yaml` for the upstream release. It’s easiest to copy the previous release’s CSV to a new file and update the name, version, and replaces fields, as well as the version of the operator’s image.
 3. Ensure the upstream release’s RBAC policies match what’s in the CSV. Any upstream edits should be carried over.
 4. Mirror any upstream manifest changes to CRD’s in the corresponding `*.crd.yaml` file.

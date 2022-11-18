@@ -4,12 +4,10 @@ CGO_ENABLED=0
 GOOS=linux
 CORE_IMAGES=$(shell find ./cmd -name main.go ! -path "./cmd/broker/*" ! -path "./cmd/mtbroker/*" | sed 's|/main.go||') ./vendor/knative.dev/pkg/apiextensions/storageversion/cmd/migrate ./vendor/knative.dev/pkg/leaderelection/chaosduck
 TEST_IMAGES=$(shell find ./test/test_images -mindepth 1 -maxdepth 1 -type d) ./vendor/knative.dev/reconciler-test/cmd/eventshub
-TEST_IMAGE_TAG=latest
-KO_DOCKER_REPO=${DOCKER_REPO_OVERRIDE}
-KO_FLAGS=
 BRANCH=
 TEST=
 IMAGE=
+TEST_IMAGE_TAG ?= latest
 
 # Guess location of openshift/release repo. NOTE: override this if it is not correct.
 OPENSHIFT=${CURDIR}/../../github.com/openshift/release
@@ -41,15 +39,17 @@ test-reconciler:
 	sh openshift/e2e-rekt-tests.sh
 .PHONY: test-reconciler
 
-# Requires ko 0.2.0 or newer.
+# Target used by github actions.
 test-images:
 	for img in $(TEST_IMAGES); do \
-		KO_DOCKER_REPO=$(DOCKER_REPO_OVERRIDE) ko build --tags=$(TEST_IMAGE_TAG) $(KO_FLAGS) -B $$img ; \
+		KO_DOCKER_REPO=$(DOCKER_REPO_OVERRIDE) ko build --tags=$(TEST_IMAGE_TAG) $(KO_FLAGS) -B $$img || \
+		KO_DOCKER_REPO=$(DOCKER_REPO_OVERRIDE) ko resolve --tags=$(TEST_IMAGE_TAG) $(KO_FLAGS) -RBf $$img || exit $?; \
 	done
 .PHONY: test-images
 
 test-image-single:
-	KO_DOCKER_REPO=$(DOCKER_REPO_OVERRIDE) ko build --tags=$(TEST_IMAGE_TAG) $(KO_FLAGS) -B test/test_images/$(IMAGE)
+	KO_DOCKER_REPO=$(DOCKER_REPO_OVERRIDE) ko build --tags=$(TEST_IMAGE_TAG) $(KO_FLAGS) -B test/test_images/$(IMAGE) || \
+	KO_DOCKER_REPO=$(DOCKER_REPO_OVERRIDE) ko resolve --tags=$(TEST_IMAGE_TAG) $(KO_FLAGS) -RBf test/test_images/$(IMAGE)
 .PHONY: test-image-single
 
 # Run make DOCKER_REPO_OVERRIDE=<your_repo> test-e2e-local if test images are available

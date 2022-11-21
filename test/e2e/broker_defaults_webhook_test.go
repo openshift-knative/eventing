@@ -100,7 +100,7 @@ func TestBrokerNamespaceDefaulting(t *testing.T) {
 		*/
 
 		knativeEventing, err := c.Dynamic.
-			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
 			Namespace(system.Namespace()).Get(ctx, "knative-eventing", metav1.GetOptions{})
 		assert.Nil(t, err)
 
@@ -108,7 +108,7 @@ func TestBrokerNamespaceDefaulting(t *testing.T) {
 		assert.Nil(t, err)
 
 		_, err = c.Dynamic.
-			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
 			Namespace(system.Namespace()).Update(ctx, knativeEventing, metav1.UpdateOptions{})
 		if err != nil {
 			return err

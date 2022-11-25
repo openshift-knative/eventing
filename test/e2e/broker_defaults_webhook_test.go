@@ -36,12 +36,13 @@ import (
 	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/yaml"
 
+	"knative.dev/pkg/reconciler"
+	"knative.dev/pkg/system"
+
 	"knative.dev/eventing/pkg/apis/config"
 	eventingduck "knative.dev/eventing/pkg/apis/duck/v1"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	testlib "knative.dev/eventing/test/lib"
-	"knative.dev/pkg/reconciler"
-	"knative.dev/pkg/system"
 )
 
 func TestBrokerNamespaceDefaulting(t *testing.T) {
@@ -100,7 +101,7 @@ func TestBrokerNamespaceDefaulting(t *testing.T) {
 		*/
 
 		knativeEventing, err := c.Dynamic.
-			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
 			Namespace(system.Namespace()).Get(ctx, "knative-eventing", metav1.GetOptions{})
 		assert.Nil(t, err)
 
@@ -108,7 +109,7 @@ func TestBrokerNamespaceDefaulting(t *testing.T) {
 		assert.Nil(t, err)
 
 		_, err = c.Dynamic.
-			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
 			Namespace(system.Namespace()).Update(ctx, knativeEventing, metav1.UpdateOptions{})
 		if err != nil {
 			return err

@@ -18,7 +18,7 @@ index d03154cea..50b07d1fb 100644
 +		*/
 +
 +		knativeEventing, err := c.Dynamic.
-+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
++			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
 +			Namespace(system.Namespace()).Get(ctx, "knative-eventing", metav1.GetOptions{})
 +		assert.Nil(t, err)
 +
@@ -26,7 +26,7 @@ index d03154cea..50b07d1fb 100644
 +		assert.Nil(t, err)
 +
 +		_, err = c.Dynamic.
-+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
++			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
 +			Namespace(system.Namespace()).Update(ctx, knativeEventing, metav1.UpdateOptions{})
 +		if err != nil {
 +			return err
@@ -51,25 +51,3 @@ index d03154cea..50b07d1fb 100644
 +	// Serverless has backoff/retry configured by default, so we need to compare exactly, not just != nil here
 +	return d != nil && *d.BackoffDelay == "PT0.5S" && *d.Retry == 5 && *d.BackoffPolicy == eventingduck.BackoffPolicyExponential
  }
-diff --git a/test/e2e/broker_defaults_webhook_test.go b/test/e2e/broker_defaults_webhook_test.go
-index 50b07d1fb..cf6d344e9 100644
---- a/test/e2e/broker_defaults_webhook_test.go
-+++ b/test/e2e/broker_defaults_webhook_test.go
-@@ -100,7 +100,7 @@ func TestBrokerNamespaceDefaulting(t *testing.T) {
- 		*/
-
- 		knativeEventing, err := c.Dynamic.
--			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
-+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
- 			Namespace(system.Namespace()).Get(ctx, "knative-eventing", metav1.GetOptions{})
- 		assert.Nil(t, err)
-
-@@ -108,7 +108,7 @@ func TestBrokerNamespaceDefaulting(t *testing.T) {
- 		assert.Nil(t, err)
-
- 		_, err = c.Dynamic.
--			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1alpha1", Resource: "knativeeventings"}).
-+			Resource(schema.GroupVersionResource{Group: "operator.knative.dev", Version: "v1beta1", Resource: "knativeeventings"}).
- 			Namespace(system.Namespace()).Update(ctx, knativeEventing, metav1.UpdateOptions{})
- 		if err != nil {
- 			return err

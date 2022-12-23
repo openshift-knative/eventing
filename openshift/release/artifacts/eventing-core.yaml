@@ -4089,8 +4089,6 @@ spec:
           capabilities:
             drop:
             - ALL
-          seccompProfile:
-            type: RuntimeDefault
 
         livenessProbe:
           httpGet:
@@ -4218,8 +4216,6 @@ spec:
             capabilities:
               drop:
               - ALL
-            seccompProfile:
-              type: RuntimeDefault
 
       serviceAccountName: pingsource-mt-adapter
 ---
@@ -4487,8 +4483,6 @@ spec:
           capabilities:
             drop:
             - ALL
-          seccompProfile:
-            type: RuntimeDefault
 
         ports:
         - name: https-webhook
@@ -4796,7 +4790,7 @@ data:
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: autoscaling/v2
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: eventing-webhook

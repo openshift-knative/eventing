@@ -45,32 +45,6 @@ index d59abd673..48faff01f 100644
  	//         imagePullPolicy: IfNotPresent
  	//         args:
  	//         - --period=1
-diff --git a/test/rekt/resources/eventlibrary/eventlibrary.yaml b/test/rekt/resources/eventlibrary/eventlibrary.yaml
-index f525ec977..384525bf3 100644
---- a/test/rekt/resources/eventlibrary/eventlibrary.yaml
-+++ b/test/rekt/resources/eventlibrary/eventlibrary.yaml
-@@ -29,7 +29,7 @@ spec:
-   restartPolicy: "Never"
-   containers:
-     - name: library
--      image: ko://knative.dev/eventing/test/test_images/event-library
-+      image: registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-event-library
-       imagePullPolicy: "IfNotPresent"
-       {{ if .containerSecurityContext }}
-       securityContext:
-diff --git a/test/rekt/resources/eventlibrary/eventlibrary_test.go b/test/rekt/resources/eventlibrary/eventlibrary_test.go
-index ab948b642..d78921d84 100644
---- a/test/rekt/resources/eventlibrary/eventlibrary_test.go
-+++ b/test/rekt/resources/eventlibrary/eventlibrary_test.go
-@@ -30,7 +30,7 @@ var yaml embed.FS
- func Example() {
- 	ctx := testlog.NewContext()
- 	images := map[string]string{
--		"ko://knative.dev/eventing/test/test_images/event-library": "gcr.io/knative-samples/helloworld-go",
-+		"registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-event-library": "gcr.io/knative-samples/helloworld-go",
- 	}
- 	cfg := map[string]interface{}{
- 		"name":      "foo",
 diff --git a/test/rekt/resources/flaker/flaker.yaml b/test/rekt/resources/flaker/flaker.yaml
 index 69aba2123..3b3e8effd 100644
 --- a/test/rekt/resources/flaker/flaker.yaml

@@ -45,7 +45,7 @@ import (
 )
 
 const (
-	exampleImage = "registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-print"
+	exampleImage = "ko://knative.dev/eventing/test/test_images/print"
 )
 
 func DataPlane_SinkTypes() *feature.FeatureSet {

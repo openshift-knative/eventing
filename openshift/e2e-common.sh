@@ -107,8 +107,6 @@ function run_e2e_rekt_tests(){
   echo "Replacing knative-eventing-test-heartbeats image"
   sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-heartbeats|${KNATIVE_EVENTING_TEST_HEARTBEATS}|g" "${images_file}"
 
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-heartbeats|${KNATIVE_EVENTING_TEST_HEARTBEATS}|g" "$(dirname "$0")/../test/rekt/resources/containersource/containersource.yaml"
-
   echo "Replacing knative-eventing-test-eventshub image"
   sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-eventshub|${KNATIVE_EVENTING_TEST_EVENTSHUB}|g" "${images_file}"
 

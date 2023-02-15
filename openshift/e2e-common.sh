@@ -119,11 +119,11 @@ function run_e2e_rekt_tests(){
       local run_command="-run ^(${test_name})$"
   fi
   # check for test flags
-  local run_flags="-timeout=90m -parallel=20"
-  if [ -v EVENTING_TEST_FLAGS ] && [ ! -z "$EVENTING_TEST_FLAGS" ]; then
-    run_flags="$EVENTING_TEST_FLAGS"
+  RUN_FLAGS=("-timeout=90m -parallel=20")
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi
-  go_test_e2e $run_flags ./test/rekt || failed=$?
+  go_test_e2e ${RUN_FLAGS[@]} ./test/rekt || failed=$?
 
   # Wait for all test namespaces to be deleted.
   timeout_non_zero 300 '[[ $(oc get project | grep -c test-) -gt 0 ]]' || return 1

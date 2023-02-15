@@ -96,7 +96,7 @@ function install_serverless(){
 }
 
 function run_e2e_rekt_tests(){
-  images_file=$(dirname "$0")/images.yaml
+  images_file=$(dirname $(realpath "$0"))/images.yaml
 
   header "Running E2E Reconciler Tests"
   echo "Replacing images used in Rekt test resources with the images built in CI"

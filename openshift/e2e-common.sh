@@ -152,7 +152,7 @@ function run_e2e_tests(){
 
   # check for test args
   if [ -n "${EVENTING_TEST_ARGS:-}" ]; then
-    common_opts=("${EVENTING_TEST_ARGS} --kubeconfig $KUBECONFIG")
+    common_opts=("${EVENTING_TEST_ARGS}")
   fi
 
   # execute tests
@@ -186,7 +186,7 @@ function run_conformance_tests(){
 
   # check for test args
   if [ -n "${EVENTING_TEST_ARGS:-}" ]; then
-    common_opts=("${EVENTING_TEST_ARGS} --kubeconfig $KUBECONFIG")
+    common_opts=("${EVENTING_TEST_ARGS}")
   fi
 
   # execute tests

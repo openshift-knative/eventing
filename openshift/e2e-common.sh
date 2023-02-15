@@ -100,16 +100,16 @@ function run_e2e_rekt_tests(){
   echo "Replacing images used in Rekt test resources with the images built in CI"
 
   echo "Replacing knative-eventing-test-event-library image"
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-event-library|${KNATIVE_EVENTING_TEST_EVENT_LIBRARY}|g" "$(dirname "$0")/../test/rekt/resources/eventlibrary/eventlibrary.yaml"
+  sed -i -e "s|registry.ci.openshift.org/openshift/knative-*:knative-eventing-test-event-library|${KNATIVE_EVENTING_TEST_EVENT_LIBRARY}|g" "$(dirname "$0")/../test/rekt/resources/eventlibrary/eventlibrary.yaml"
 
   echo "Replacing knative-eventing-test-heartbeats image"
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-heartbeats|${KNATIVE_EVENTING_TEST_HEARTBEATS}|g" "$(dirname "$0")/../test/rekt/resources/containersource/containersource.yaml"
+  sed -i -e "s|registry.ci.openshift.org/openshift/knative-*:knative-eventing-test-heartbeats|${KNATIVE_EVENTING_TEST_HEARTBEATS}|g" "$(dirname "$0")/../test/rekt/resources/containersource/containersource.yaml"
 
   echo "Replacing knative-eventing-test-event-flaker image"
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-event-flaker|${KNATIVE_EVENTING_TEST_EVENT_FLAKER}|g" "$(dirname "$0")/../test/rekt/resources/flaker/flaker.yaml"
+  sed -i -e "s|registry.ci.openshift.org/openshift/knative-*:knative-eventing-test-event-flaker|${KNATIVE_EVENTING_TEST_EVENT_FLAKER}|g" "$(dirname "$0")/../test/rekt/resources/flaker/flaker.yaml"
 
   echo "Replacing knative-eventing-test-eventshub image"
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-eventshub|${KNATIVE_EVENTING_TEST_EVENTSHUB}|g" "$(dirname "$0")/../vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml"
+  sed -i -e "s|registry.ci.openshift.org/openshift/knative-*:knative-eventing-test-eventshub|${KNATIVE_EVENTING_TEST_EVENTSHUB}|g" "$(dirname "$0")/../vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml"
 
   local test_name="${1:-}"
   local run_command=""

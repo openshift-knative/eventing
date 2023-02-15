@@ -58,7 +58,7 @@ func init() {
 }
 
 func WithEnvConfig() []manifest.CfgFn {
-	cfg := []manifest.CfgFn{WithBrokerClass("MTChannelBasedBroker")}
+	cfg := []manifest.CfgFn{WithBrokerClass(EnvCfg.BrokerClass)}
 
 	if EnvCfg.BrokerTemplatesDir != "" {
 		cfg = append(cfg, WithBrokerTemplateFiles(EnvCfg.BrokerTemplatesDir))

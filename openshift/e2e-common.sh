@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$(dirname "$0")/common.sh"
+
 if [[ -n "${ARTIFACT_DIR:-}" ]]; then
   BUILD_NUMBER=${BUILD_NUMBER:-$(head -c 128 < /dev/urandom | base64 | fold -w 8 | head -n 1)}
   ARTIFACTS="${ARTIFACT_DIR}/build-${BUILD_NUMBER}"
@@ -96,19 +98,10 @@ function install_serverless(){
 }
 
 function run_e2e_rekt_tests(){
-  images_file=$(dirname $(realpath "$0"))/images.yaml
-
   header "Running E2E Reconciler Tests"
-  echo "Replacing images used in Rekt test resources with the images built in CI"
-
-  echo "Replacing knative-eventing-test-print image"
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-print|${KNATIVE_EVENTING_TEST_PRINT}|g" "${images_file}"
-
-  echo "Replacing knative-eventing-test-heartbeats image"
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-heartbeats|${KNATIVE_EVENTING_TEST_HEARTBEATS}|g" "${images_file}"
-
-  echo "Replacing knative-eventing-test-eventshub image"
-  sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-eventshub|${KNATIVE_EVENTING_TEST_EVENTSHUB}|g" "${images_file}"
+  
+  images_file=$(dirname $(realpath "$0"))/images.yaml
+  update_image_resolver_file ${images_file}
 
   go_test_e2e -timeout=1h -parallel=20 ./test/rekt --images.producer.file="${images_file}" || failed=$?
 

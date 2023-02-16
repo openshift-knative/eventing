@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+source $(dirname $0)/../common.sh
 source $(dirname $0)/resolve.sh
 
 release=$1
@@ -43,3 +44,6 @@ resolve_resources config/channels/in-memory-channel/roles "${in_memory_channel}"
 resolve_resources config/channels/in-memory-channel/webhooks "${in_memory_channel}" "$image_prefix" "$tag"
 # MT Broker
 resolve_resources config/brokers/mt-channel-broker "${mt_channel_broker}" "$image_prefix" "$tag"
+
+images_file=$(dirname $(realpath "$0"))/../images.yaml
+update_image_resolver_file ${images_file} ${release}

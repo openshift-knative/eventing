@@ -17,21 +17,21 @@ function update_image_resolver_file() {
   echo "Updating image resolver file ${image_resolver_file}"
 
   if [ "$release" == "ci" ]; then
-    images[print]=${KNATIVE_EVENTING_TEST_PRINT}
-    images[heartbeats]=${KNATIVE_EVENTING_TEST_HEARTBEATS}
-    images[eventshub]=${KNATIVE_EVENTING_TEST_EVENTSHUB}
+    images[knative.dev/eventing/test/test_images/print]=${KNATIVE_EVENTING_TEST_PRINT}
+    images[knative.dev/eventing/test/test_images/heartbeats]=${KNATIVE_EVENTING_TEST_HEARTBEATS}
+    images[knative.dev/reconciler-test/cmd/eventshub]=${KNATIVE_EVENTING_TEST_EVENTSHUB}
   else
     image_prefix="registry.ci.openshift.org/openshift/knative-${release}:knative-eventing"
 
-    images[print]="${image_prefix}-print"
-    images[heartbeats]="${image_prefix}-heartbeats"
-    images[eventshub]="${image_prefix}-eventshub"
+    images[knative.dev/eventing/test/test_images/print]="${image_prefix}-print"
+    images[knative.dev/eventing/test/test_images/heartbeats]="${image_prefix}-heartbeats"
+    images[knative.dev/reconciler-test/cmd/eventshub]="${image_prefix}-eventshub"
   fi
 
   for key in "${!images[@]}"; do
     image=${images[$key]}
 
     echo "Replacing ${key} image"
-    sed -i -E "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing(-test)?-${key}|${image}|g" "${image_resolver_file}"
+    sed -i "s|^${key}: .*|${key}: ${image}|g" "${image_resolver_file}"
   done
 }

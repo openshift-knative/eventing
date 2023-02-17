@@ -179,7 +179,7 @@ function run_conformance_tests(){
   fi
 
   # check for test flags
-  RUN_FLAGS="-timeout=50m -parallel=20"
+  RUN_FLAGS="-timeout=50m -parallel=12"
   if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
     RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi

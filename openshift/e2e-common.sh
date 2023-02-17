@@ -111,7 +111,19 @@ function run_e2e_rekt_tests(){
   echo "Replacing knative-eventing-test-eventshub image"
   sed -i -e "s|registry.ci.openshift.org/openshift/knative-.*:knative-eventing-test-eventshub|${KNATIVE_EVENTING_TEST_EVENTSHUB}|g" "$(dirname "$0")/../vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml"
 
-  go_test_e2e -timeout=1h -parallel=20 ./test/rekt || failed=$?
+  local test_name="${1:-}"
+  local run_command=""
+  local failed=0
+ 
+  if [ -n "$test_name" ]; then
+      local run_command="-run ^(${test_name})$"
+  fi
+  # check for test flags
+  RUN_FLAGS="-timeout=90m -parallel=20"
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
+  fi
+  go_test_e2e ${RUN_FLAGS} ./test/rekt || failed=$?
 
   # Wait for all test namespaces to be deleted.
   timeout_non_zero 300 '[[ $(oc get project | grep -c test-) -gt 0 ]]' || return 1
@@ -132,11 +144,23 @@ function run_e2e_tests(){
       local run_command="-run ^(${test_name})$"
   fi
 
-  go_test_e2e -timeout=50m -parallel=20 ./test/e2e \
+  # check for test flags
+  RUN_FLAGS="-timeout=50m -parallel=20"
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
+  fi
+
+  # check for test args
+  if [ -n "${EVENTING_TEST_ARGS:-}" ]; then
+    common_opts="${EVENTING_TEST_ARGS}"
+  fi
+
+  # execute tests
+  go_test_e2e ${RUN_FLAGS} ./test/e2e \
     "$run_command" \
     -brokerclass=MTChannelBasedBroker \
     -imagetemplate="$TEST_IMAGE_TEMPLATE" \
-    $common_opts || failed=$?
+    ${common_opts} || failed=$?
 
   return $failed
 }
@@ -154,11 +178,23 @@ function run_conformance_tests(){
       local run_command="-run ^(${test_name})$"
   fi
 
-  go_test_e2e -timeout=30m -parallel=12 ./test/conformance \
+  # check for test flags
+  RUN_FLAGS="-timeout=50m -parallel=20"
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
+  fi
+
+  # check for test args
+  if [ -n "${EVENTING_TEST_ARGS:-}" ]; then
+    common_opts="${EVENTING_TEST_ARGS}"
+  fi
+
+  # execute tests
+  go_test_e2e ${RUN_FLAGS} ./test/conformance \
     "$run_command" \
     -brokerclass=MTChannelBasedBroker \
     -imagetemplate="$TEST_IMAGE_TEMPLATE" \
-    $common_opts || failed=$?
+    ${common_opts} || failed=$?
 
   return $failed
 }

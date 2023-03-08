@@ -17,9 +17,12 @@ function update_image_resolver_file() {
   echo "Updating image resolver file ${image_resolver_file}"
 
   if [ "$release" == "ci" ]; then
-    images[knative.dev/eventing/test/test_images/print]=${KNATIVE_EVENTING_TEST_PRINT}
-    images[knative.dev/eventing/test/test_images/heartbeats]=${KNATIVE_EVENTING_TEST_HEARTBEATS}
-    images[knative.dev/reconciler-test/cmd/eventshub]=${KNATIVE_EVENTING_TEST_EVENTSHUB}
+    # image prefix in case KNATIVE_EVENTING_TEST_XYZ env vars are not set
+    image_prefix="registry.ci.openshift.org/openshift/knative-release-next:knative-eventing"
+
+    images[knative.dev/eventing/test/test_images/print]=${KNATIVE_EVENTING_TEST_PRINT:-"${image_prefix}-print"}
+    images[knative.dev/eventing/test/test_images/heartbeats]=${KNATIVE_EVENTING_TEST_HEARTBEATS:-"${image_prefix}-heartbeats"}
+    images[knative.dev/reconciler-test/cmd/eventshub]=${KNATIVE_EVENTING_TEST_EVENTSHUB:-"${image_prefix}-eventshub"}
   else
     image_prefix="registry.ci.openshift.org/openshift/knative-${release}:knative-eventing"
 

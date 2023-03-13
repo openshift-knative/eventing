@@ -11,7 +11,7 @@ function update_image_resolver_file() {
   echo $@
 
   local image_resolver_file=$1
-  local release=${2:"ci"}
+  local release=${2:-"ci"}
   declare -A images
 
   echo "Updating image resolver file ${image_resolver_file}"

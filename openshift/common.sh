@@ -21,13 +21,13 @@ function update_image_resolver_file() {
     image_prefix="registry.ci.openshift.org/openshift/knative-release-next:knative-eventing"
 
     images[knative.dev/eventing/test/test_images/print]=${KNATIVE_EVENTING_TEST_PRINT:-"${image_prefix}-print"}
-    images[knative.dev/eventing/test/test_images/heartbeats]=${KNATIVE_EVENTING_TEST_HEARTBEATS:-"${image_prefix}-heartbeats"}
+    images[knative.dev/eventing/cmd/heartbeats]=${KNATIVE_EVENTING_TEST_HEARTBEATS:-"${image_prefix}-heartbeats"}
     images[knative.dev/reconciler-test/cmd/eventshub]=${KNATIVE_EVENTING_TEST_EVENTSHUB:-"${image_prefix}-eventshub"}
   else
     image_prefix="registry.ci.openshift.org/openshift/knative-${release}:knative-eventing"
 
     images[knative.dev/eventing/test/test_images/print]="${image_prefix}-print"
-    images[knative.dev/eventing/test/test_images/heartbeats]="${image_prefix}-heartbeats"
+    images[knative.dev/eventing/cmd/heartbeats]="${image_prefix}-heartbeats"
     images[knative.dev/reconciler-test/cmd/eventshub]="${image_prefix}-eventshub"
   fi
 

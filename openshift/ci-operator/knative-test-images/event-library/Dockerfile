@@ -4,7 +4,7 @@ FROM registry.ci.openshift.org/openshift/release:golang-1.18 as builder
 COPY . .
 RUN make install test-install
 
-FROM openshift/origin-base
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 USER 65532
 
 COPY ./test/test_images/event-library/kodata /var/run/ko

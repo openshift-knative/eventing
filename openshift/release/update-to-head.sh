@@ -23,7 +23,6 @@ git commit -sm ":fire: remove unneeded workflows" .github/
 # Update openshift's main and take all needed files from there.
 git fetch openshift main
 git checkout openshift/main openshift OWNERS_ALIASES OWNERS Makefile
-make generate-release
 git add openshift OWNERS_ALIASES OWNERS Makefile
 git commit -m ":open_file_folder: Update openshift specific files."
 
@@ -36,6 +35,7 @@ do
 done
 
 make generate-release
+git add openshift
 git commit -am ":fire: Apply carried patches."
 
 git push -f openshift ${REPO_BRANCH}

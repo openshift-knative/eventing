@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 source $(dirname $0)/resolve.sh
 
 release=$(yq r openshift/project.yaml project.tag)

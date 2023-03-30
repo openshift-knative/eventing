@@ -34,7 +34,7 @@ var yaml embed.FS
 func Install(name string) feature.StepFn {
 	cfg := map[string]interface{}{
 		"name":  name,
-		"image": "registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-heartbeats", // default
+		"image": "registry.ci.openshift.org/openshift/knative-v1.7:knative-eventing-test-heartbeats", // default
 	}
 
 	return func(ctx context.Context, t feature.T) {

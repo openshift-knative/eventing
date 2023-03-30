@@ -35,7 +35,7 @@ func Install(name string) feature.StepFn {
 	cfg := map[string]interface{}{
 		"name":      name,
 		"selectors": map[string]string{"app": name},                                                      // default
-		"image":     "registry.ci.openshift.org/openshift/knative-v1.8:knative-eventing-test-heartbeats", // default
+		"image":     "registry.ci.openshift.org/openshift/knative-eventing-test-heartbeats:knative-v1.8", // default
 		"port":      8080,                                                                                // default
 	}
 

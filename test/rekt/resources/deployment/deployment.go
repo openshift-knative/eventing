@@ -34,9 +34,9 @@ var yaml embed.FS
 func Install(name string) feature.StepFn {
 	cfg := map[string]interface{}{
 		"name":      name,
-		"selectors": map[string]string{"app": name},                                                         // default
-		"image":     "registry.ci.openshift.org/openshift/knative-nightly:knative-eventing-test-heartbeats", // default
-		"port":      8080,                                                                                   // default
+		"selectors": map[string]string{"app": name},                                                      // default
+		"image":     "registry.ci.openshift.org/openshift/knative-v1.9:knative-eventing-test-heartbeats", // default
+		"port":      8080,                                                                                // default
 	}
 
 	return func(ctx context.Context, t feature.T) {

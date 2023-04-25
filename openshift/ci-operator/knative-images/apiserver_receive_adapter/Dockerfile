@@ -5,6 +5,9 @@ COPY . .
 RUN make install test-install
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal
+
+RUN microdnf install tzdata
+
 USER 65532
 
 COPY ./cmd/apiserver_receive_adapter/kodata /var/run/ko

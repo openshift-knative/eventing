@@ -5,6 +5,9 @@ COPY . .
 RUN make install test-install
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal
+
+RUN microdnf install tzdata
+
 USER 65532
 
 COPY ./cmd/mtping/kodata /var/run/ko

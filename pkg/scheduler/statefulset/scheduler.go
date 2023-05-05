@@ -164,7 +164,7 @@ func (s *StatefulSetScheduler) Schedule(vpod scheduler.VPod) ([]duckv1alpha1.Pla
 
 func (s *StatefulSetScheduler) scheduleVPod(vpod scheduler.VPod) ([]duckv1alpha1.Placement, error) {
 	logger := s.logger.With("key", vpod.GetKey())
-	logger.Info("scheduling")
+	logger.Debug("scheduling")
 
 	// Get the current placements state
 	// Quite an expensive operation but safe and simple.
@@ -186,7 +186,7 @@ func (s *StatefulSetScheduler) scheduleVPod(vpod scheduler.VPod) ([]duckv1alpha1
 	// Exact number of vreplicas => do nothing
 	tr := scheduler.GetTotalVReplicas(placements)
 	if tr == vpod.GetVReplicas() {
-		logger.Info("scheduling succeeded (already scheduled)")
+		logger.Debug("scheduling succeeded (already scheduled)")
 		delete(s.pending, vpod.GetKey())
 
 		// Fully placed. Nothing to do
@@ -196,7 +196,7 @@ func (s *StatefulSetScheduler) scheduleVPod(vpod scheduler.VPod) ([]duckv1alpha1
 	if state.SchedulerPolicy != "" {
 		// Need less => scale down
 		if tr > vpod.GetVReplicas() {
-			logger.Infow("scaling down", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
+			logger.Debugw("scaling down", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
 
 			placements = s.removeReplicas(tr-vpod.GetVReplicas(), placements)
 
@@ -206,14 +206,14 @@ func (s *StatefulSetScheduler) scheduleVPod(vpod scheduler.VPod) ([]duckv1alpha1
 		}
 
 		// Need more => scale up
-		logger.Infow("scaling up", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
+		logger.Debugw("scaling up", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
 
 		placements, left = s.addReplicas(state, vpod.GetVReplicas()-tr, placements)
 
 	} else { //Predicates and priorities must be used for scheduling
 		// Need less => scale down
 		if tr > vpod.GetVReplicas() && state.DeschedPolicy != nil {
-			logger.Infow("scaling down", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
+			logger.Debugw("scaling down", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
 			placements = s.removeReplicasWithPolicy(vpod, tr-vpod.GetVReplicas(), placements)
 
 			// Do not trigger the autoscaler to avoid unnecessary churn
@@ -226,7 +226,7 @@ func (s *StatefulSetScheduler) scheduleVPod(vpod scheduler.VPod) ([]duckv1alpha1
 			// Need more => scale up
 			// rebalancing needed for all vreps most likely since there are pending vreps from previous reconciliation
 			// can fall here when vreps scaled up or after eviction
-			logger.Infow("scaling up with a rebalance (if needed)", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
+			logger.Debugw("scaling up with a rebalance (if needed)", zap.Int32("vreplicas", tr), zap.Int32("new vreplicas", vpod.GetVReplicas()))
 			placements, left = s.rebalanceReplicasWithPolicy(vpod, vpod.GetVReplicas(), placements)
 		}
 	}

@@ -149,7 +149,6 @@ function run_e2e_tests(){
   # execute tests
   go_test_e2e ${RUN_FLAGS} ./test/e2e \
     "$run_command" \
-    -brokerclass=MTChannelBasedBroker \
     -imagetemplate="$TEST_IMAGE_TEMPLATE" \
     ${common_opts} || failed=$?
 
@@ -183,7 +182,6 @@ function run_conformance_tests(){
   # execute tests
   go_test_e2e ${RUN_FLAGS} ./test/conformance \
     "$run_command" \
-    -brokerclass=MTChannelBasedBroker \
     -imagetemplate="$TEST_IMAGE_TEMPLATE" \
     ${common_opts} || failed=$?
 

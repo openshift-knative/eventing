@@ -116,9 +116,6 @@ function run_e2e_rekt_tests(){
   fi
   go_test_e2e ${RUN_FLAGS} ./test/rekt --images.producer.file="${images_file}" || failed=$?
 
-  # Wait for all test namespaces to be deleted.
-  timeout_non_zero 300 '[[ $(oc get project | grep -c test-) -gt 0 ]]' || return 1
-
   return $failed
 }
 

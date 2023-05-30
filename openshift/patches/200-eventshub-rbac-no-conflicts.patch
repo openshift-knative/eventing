@@ -1,0 +1,94 @@
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml b/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml
+index b49e07681..5eaf4bd49 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml
+@@ -26,7 +26,7 @@ metadata:
+       {{ end }}
+   {{ end }}
+ spec:
+-  serviceAccountName: "{{ .namespace }}"
++  serviceAccountName: "{{ .name }}"
+   restartPolicy: "OnFailure"
+   {{ if .podSecurityContext }}
+   securityContext:
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/100-sa.yaml b/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/100-sa.yaml
+index b94996272..f86b52394 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/100-sa.yaml
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/100-sa.yaml
+@@ -15,5 +15,5 @@
+ apiVersion: v1
+ kind: ServiceAccount
+ metadata:
+-  name: {{ .namespace }}
++  name: {{ .name }}
+   namespace: {{ .namespace }}
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/101-rbac.yaml b/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/101-rbac.yaml
+index 5839e77b2..dffe43896 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/101-rbac.yaml
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/101-rbac.yaml
+@@ -15,7 +15,7 @@
+ apiVersion: rbac.authorization.k8s.io/v1
+ kind: Role
+ metadata:
+-  name: {{ .namespace }}
++  name: {{ .name }}
+   namespace: {{ .namespace }}
+ rules:
+   - apiGroups: [ "" ]
+@@ -35,13 +35,13 @@ rules:
+ apiVersion: rbac.authorization.k8s.io/v1
+ kind: RoleBinding
+ metadata:
+-  name: {{ .namespace }}
++  name: {{ .name }}
+   namespace: {{ .namespace }}
+ roleRef:
+   apiGroup: rbac.authorization.k8s.io
+   kind: Role
+-  name: {{ .namespace }}
++  name: {{ .name }}
+ subjects:
+   - kind: ServiceAccount
+-    name: {{ .namespace }}
++    name: {{ .name }}
+     namespace: {{ .namespace }}
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/rbac.go b/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/rbac.go
+index 099b73a83..de8a2cfbd 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/rbac.go
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/rbac/rbac.go
+@@ -31,9 +31,9 @@ var templates embed.FS
+ 
+ // Install creates the necessary ServiceAccount, Role, RoleBinding for the eventshub.
+ // The resources are named according to the current namespace defined in the environment.
+-func Install() feature.StepFn {
++func Install(cfg map[string]interface{}) feature.StepFn {
+ 	return func(ctx context.Context, t feature.T) {
+-		if _, err := manifest.InstallYamlFS(ctx, templates, map[string]interface{}{}); err != nil && !apierrors.IsAlreadyExists(err) {
++		if _, err := manifest.InstallYamlFS(ctx, templates, cfg); err != nil && !apierrors.IsAlreadyExists(err) {
+ 			t.Fatal(err)
+ 		}
+ 	}
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go b/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go
+index fdf97692c..b2ba7dfd7 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go
+@@ -67,9 +67,6 @@ func Install(name string, options ...EventsHubOption) feature.StepFn {
+ 		eventListener := k8s.EventListenerFromContext(ctx)
+ 		registerEventsHubStore(ctx, eventListener, name, namespace)
+ 
+-		// Install ServiceAccount, Role, RoleBinding
+-		eventshubrbac.Install()(ctx, t)
+-
+ 		isReceiver := strings.Contains(envs["EVENT_GENERATORS"], "receiver")
+ 
+ 		cfg := map[string]interface{}{
+@@ -79,6 +76,9 @@ func Install(name string, options ...EventsHubOption) feature.StepFn {
+ 			"withReadiness": isReceiver,
+ 		}
+ 
++		// Install ServiceAccount, Role, RoleBinding
++		eventshubrbac.Install(cfg)(ctx, t)
++
+ 		if ic := environment.GetIstioConfig(ctx); ic.Enabled {
+ 			manifest.WithIstioPodAnnotations(cfg)
+ 		}

@@ -23,11 +23,12 @@ import (
 	"testing"
 	"time"
 
-	"knative.dev/eventing/test/rekt/features/pingsource"
 	"knative.dev/pkg/system"
 	"knative.dev/reconciler-test/pkg/environment"
 	"knative.dev/reconciler-test/pkg/k8s"
 	"knative.dev/reconciler-test/pkg/knative"
+
+	"knative.dev/eventing/test/rekt/features/pingsource"
 )
 
 func TestPingSourceWithSinkRef(t *testing.T) {

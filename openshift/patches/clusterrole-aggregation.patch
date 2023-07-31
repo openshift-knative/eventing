@@ -1,0 +1,13 @@
+diff --git a/config/core/roles/clusterrole-namespaced.yaml b/config/core/roles/clusterrole-namespaced.yaml
+index daac5dfe1..91f3fdfe8 100644
+--- a/config/core/roles/clusterrole-namespaced.yaml
++++ b/config/core/roles/clusterrole-namespaced.yaml
+@@ -82,7 +82,7 @@ apiVersion: rbac.authorization.k8s.io/v1
+ metadata:
+   name: knative-eventing-namespaced-edit
+   labels:
+-    rbac.authorization.k8s.io/aggregate-to-view: "true"
++    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+     app.kubernetes.io/version: devel
+     app.kubernetes.io/name: knative-eventing
+ rules:

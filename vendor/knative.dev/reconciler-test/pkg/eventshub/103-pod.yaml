@@ -26,7 +26,7 @@ metadata:
       {{ end }}
   {{ end }}
 spec:
-  serviceAccountName: "{{ .name }}"
+  serviceAccountName: "{{ .namespace }}"
   restartPolicy: "OnFailure"
   {{ if .podSecurityContext }}
   securityContext:

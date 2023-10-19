@@ -97,7 +97,5 @@ spec:
             capabilities:
               drop:
               - ALL
-            seccompProfile:
-              type: RuntimeDefault
 
       serviceAccountName: pingsource-mt-adapter

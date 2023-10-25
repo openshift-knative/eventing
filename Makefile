@@ -39,6 +39,10 @@ test-reconciler:
 	sh openshift/e2e-rekt-tests.sh
 .PHONY: test-reconciler
 
+test-encryption-auth-e2e:
+	sh openshift/e2e-encryption-auth-tests.sh
+.PHONY: test-encryption-auth-e2e
+
 # Target used by github actions.
 test-images:
 	for img in $(TEST_IMAGES); do \

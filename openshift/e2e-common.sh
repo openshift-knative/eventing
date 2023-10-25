@@ -7,6 +7,8 @@ if [[ -n "${ARTIFACT_DIR:-}" ]]; then
   mkdir -p "${ARTIFACTS}"
 fi
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 export EVENTING_NAMESPACE="${EVENTING_NAMESPACE:-knative-eventing}"
 export SYSTEM_NAMESPACE=$EVENTING_NAMESPACE
 export ZIPKIN_NAMESPACE=$EVENTING_NAMESPACE
@@ -111,6 +113,36 @@ function run_e2e_rekt_tests(){
   fi
   # check for test flags
   RUN_FLAGS="-timeout=1h -parallel=20"
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
+  fi
+  go_test_e2e ${RUN_FLAGS} ./test/rekt --images.producer.file="${images_file}" || failed=$?
+
+  return $failed
+}
+
+function run_e2e_encryption_auth_tests(){
+  header "Running E2E Encryption and Auth Tests"
+
+  oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${SCRIPT_DIR}/knative-eventing-encryption-auth.yaml"
+
+  images_file=$(dirname $(realpath "$0"))/images.yaml
+  make generate-release
+  cat "${images_file}"
+
+  oc wait --for=condition=Ready knativeeventing.operator.knative.dev knative-eventing -n "${EVENTING_NAMESPACE}" --timeout=900s
+
+  local regex="(.*TLS.*|.*OIDC.*)"
+
+  local test_name="${1:-}"
+  local run_command="-run ${regex}"
+  local failed=0
+
+  if [ -n "$test_name" ]; then
+      local run_command="-run ^(${test_name})$"
+  fi
+  # check for test flags
+  RUN_FLAGS="-timeout=1h -parallel=20 -run \"${regex}\""
   if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
     RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi

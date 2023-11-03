@@ -1,7 +1,7 @@
 knative.dev/eventing/cmd/apiserver_receive_adapter: registry.ci.openshift.org/openshift/knative-eventing-apiserver-receive-adapter:knative-v1.11
 knative.dev/eventing/cmd/appender: registry.ci.openshift.org/openshift/knative-eventing-appender:knative-v1.11
-knative.dev/eventing/cmd/broker/filter: registry.ci.openshift.org/openshift/knative-eventing-filter:knative-v1.11
-knative.dev/eventing/cmd/broker/ingress: registry.ci.openshift.org/openshift/knative-eventing-ingress:knative-v1.11
+knative.dev/eventing/cmd/broker/filter: registry.ci.openshift.org/openshift/knative-eventing-mtbroker-filter:knative-v1.11
+knative.dev/eventing/cmd/broker/ingress: registry.ci.openshift.org/openshift/knative-eventing-mtbroker-ingress:knative-v1.11
 knative.dev/eventing/cmd/controller: registry.ci.openshift.org/openshift/knative-eventing-controller:knative-v1.11
 knative.dev/eventing/cmd/event_display: registry.ci.openshift.org/openshift/knative-eventing-event-display:knative-v1.11
 knative.dev/eventing/cmd/heartbeats: registry.ci.openshift.org/openshift/knative-eventing-heartbeats:knative-v1.11

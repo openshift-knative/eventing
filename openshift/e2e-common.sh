@@ -104,7 +104,6 @@ function run_e2e_rekt_tests(){
   if [ $HW_ARCH != "ppc64le" ] && [ $HW_ARCH != "s390x" ]; then
     make generate-release
   fi
-  make generate-release
   cat "${images_file}"
 
   local test_name="${1:-}"

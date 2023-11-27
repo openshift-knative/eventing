@@ -196,6 +196,12 @@ func (r *Reconciler) createReceiveAdapter(ctx context.Context, src *v1.ApiServer
 		msg := "Deployment created"
 		if err != nil {
 			msg = fmt.Sprint("Deployment created, error:", err)
+		} else {
+			// make CM only on clean creation
+			err := r.ensureCaTrustBundleConfigMap(ctx, src, adapterArgs)
+			if err != nil {
+				return nil, err
+			}
 		}
 		controller.GetEventRecorder(ctx).Eventf(src, corev1.EventTypeNormal, apiserversourceDeploymentCreated, "%s", msg)
 		return ra, err
@@ -214,6 +220,20 @@ func (r *Reconciler) createReceiveAdapter(ctx context.Context, src *v1.ApiServer
 		logging.FromContext(ctx).Debugw("Reusing existing receive adapter", zap.Any("receiveAdapter", ra))
 	}
 	return ra, nil
+}
+
+func (r *Reconciler) ensureCaTrustBundleConfigMap(ctx context.Context, src *v1.ApiServerSource, adapterArgs resources.ReceiveAdapterArgs) error {
+	_, err := r.kubeClientSet.CoreV1().ConfigMaps(src.Namespace).Get(ctx, resources.TrustedCAConfigMapName, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		trustedBundleCM := resources.MakeTrustedCABundleConfigMap(&adapterArgs)
+
+		_, err := r.kubeClientSet.CoreV1().ConfigMaps(src.Namespace).Create(ctx, trustedBundleCM, metav1.CreateOptions{})
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			return fmt.Errorf("error creating trusted CA bundle configmap: %v", err)
+		}
+	}
+
+	return nil
 }
 
 func (r *Reconciler) podSpecChanged(oldPodSpec corev1.PodSpec, newPodSpec corev1.PodSpec) bool {

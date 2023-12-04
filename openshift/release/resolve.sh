@@ -24,10 +24,10 @@ function resolve_resources(){
         -e "s+ko://++" \
         -e "s+eventing.knative.dev/release: devel+eventing.knative.dev/release: ${release}+" \
         -e "s+app.kubernetes.io/version: devel+app.kubernetes.io/version: ${release}+" \
-        -e "s+knative.dev/eventing/cmd/broker/ingress+${image_prefix}mtbroker-ingress${image_tag}+" \
-        -e "s+knative.dev/eventing/cmd/broker/filter+${image_prefix}mtbroker-filter${image_tag}+" \
-        -e "s+knative.dev/eventing/cmd/mtbroker/ingress+${image_prefix}mtbroker-ingress${image_tag}+" \
-        -e "s+knative.dev/eventing/cmd/mtbroker/filter+${image_prefix}mtbroker-filter${image_tag}+" \
+        -e "s+knative.dev/eventing/cmd/broker/ingress+${image_prefix}ingress${image_tag}+" \
+        -e "s+knative.dev/eventing/cmd/broker/filter+${image_prefix}filter${image_tag}+" \
+        -e "s+knative.dev/eventing/cmd/mtbroker/ingress+${image_prefix}ingress${image_tag}+" \
+        -e "s+knative.dev/eventing/cmd/mtbroker/filter+${image_prefix}filter${image_tag}+" \
         -e "s+knative.dev/eventing/cmd/mtchannel_broker+${image_prefix}mtchannel-broker${image_tag}+" \
         -e "s+knative.dev/eventing/cmd/sugar_controller+${image_prefix}sugar-controller${image_tag}+" \
         -e "s+knative.dev/eventing/cmd/in_memory/channel_controller+${image_prefix}channel-controller${image_tag}+" \

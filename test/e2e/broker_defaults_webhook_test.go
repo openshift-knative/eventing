@@ -84,19 +84,19 @@ func TestBrokerNamespaceDefaulting(t *testing.T) {
 
 		// Instead of updating the CM directly, we need to update its definition in KnativeEventing:
 		/*
-		cm.Data[config.BrokerDefaultsKey] = string(b)
+			cm.Data[config.BrokerDefaultsKey] = string(b)
 
-		cm, err = c.Kube.CoreV1().ConfigMaps(system.Namespace()).Update(ctx, cm, metav1.UpdateOptions{})
-		if err != nil {
-			return err
-		}
+			cm, err = c.Kube.CoreV1().ConfigMaps(system.Namespace()).Update(ctx, cm, metav1.UpdateOptions{})
+			if err != nil {
+				return err
+			}
 
-		b, err = yaml.Marshal(cm.Data[config.BrokerDefaultsKey])
-		if err != nil {
-			t.Log("error", err)
-		} else {
-			t.Log("CM updated - new values:", string(b))
-		}
+			b, err = yaml.Marshal(cm.Data[config.BrokerDefaultsKey])
+			if err != nil {
+				t.Log("error", err)
+			} else {
+				t.Log("CM updated - new values:", string(b))
+			}
 		*/
 
 		knativeEventing, err := c.Dynamic.

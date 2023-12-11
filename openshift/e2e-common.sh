@@ -92,6 +92,8 @@ function install_serverless(){
   cat ${operator_dir}/olm-catalog/serverless-operator/manifests/serverless-operator.clusterserviceversion.yaml
   popd || return $?
 
+  oc -n knative-eventing patch knativeeventing/knative-eventing --type=merge --patch="{\"spec\": {\"config\": { \"features\": { \"authentication-oidc\": \"enabled\" } }}}"
+
   return $failed
 }
 
@@ -118,7 +120,7 @@ function run_e2e_rekt_tests(){
   if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
     RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi
-  go_test_e2e ${RUN_FLAGS} ./test/rekt --images.producer.file="${images_file}" || failed=$?
+  go_test_e2e ${RUN_FLAGS} ./test/auth --images.producer.file="${images_file}" || failed=$?
 
   return $failed
 }

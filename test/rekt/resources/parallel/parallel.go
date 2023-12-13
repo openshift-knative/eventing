@@ -126,6 +126,9 @@ func WithSubscriberAt(index int, d *duckv1.Destination) manifest.CfgFn {
 			// Replace "new line" with "new line + spaces".
 			subscriber["CACerts"] = strings.ReplaceAll(*d.CACerts, "\n", "\n          ")
 		}
+		if d.Audience != nil {
+			subscriber["audience"] = *d.Audience
+		}
 
 		cfg["branches"] = branches
 	}
@@ -172,6 +175,9 @@ func WithFilterAt(index int, d *duckv1.Destination) manifest.CfgFn {
 			// Replace "new line" with "new line + spaces".
 			filter["CACerts"] = strings.ReplaceAll(*d.CACerts, "\n", "\n          ")
 		}
+		if d.Audience != nil {
+			filter["audience"] = *d.Audience
+		}
 
 		cfg["branches"] = branches
 	}
@@ -217,6 +223,9 @@ func WithReplyAt(index int, d *duckv1.Destination) manifest.CfgFn {
 			// This is a multi-line string and should be indented accordingly.
 			// Replace "new line" with "new line + spaces".
 			reply["CACerts"] = strings.ReplaceAll(*d.CACerts, "\n", "\n          ")
+		}
+		if d.Audience != nil {
+			reply["audience"] = *d.Audience
 		}
 
 		cfg["branches"] = branches
@@ -270,9 +279,4 @@ func WithChannelTemplate(template channel_template.ChannelTemplate) manifest.Cfg
 
 		channelTemplate["spec"] = template.Spec
 	}
-}
-
-// ValidateAddress validates the address retured by Address
-func ValidateAddress(name string, validate addressable.ValidateAddressFn, timings ...time.Duration) feature.StepFn {
-	return addressable.ValidateAddress(GVR(), name, validate, timings...)
 }

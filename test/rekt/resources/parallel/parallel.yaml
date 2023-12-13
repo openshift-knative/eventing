@@ -118,4 +118,7 @@ spec:
     CACerts: |-
       {{ .reply.CACerts }}
     {{ end }}
+    {{ if .reply.audience }}
+    audience: {{ .reply.audience }}
+    {{ end }}
   {{ end }}

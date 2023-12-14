@@ -140,12 +140,12 @@ func ParallelWithTwoBranchesOIDC(channelTemplate channel_template.ChannelTemplat
 		Must("deliver event to subscriber1", eventasssert.OnStore(subscriber1).MatchEvent(test.HasId(event.ID())).AtLeast(1)).
 		Must("deliver event to subscriber2", eventasssert.OnStore(subscriber2).MatchEvent(test.HasId(event.ID())).AtLeast(1)).
 		Must("deliver event to filter1", eventasssert.OnStore(filter1).MatchEvent(test.HasId(event.ID())).AtLeast(1)).
-		Must("deliver event from subscriber 1 to reply", eventasssert.OnStore(sink).
-			MatchEvent(test.HasId(event.ID()), test.HasData([]byte("appended data 1"))).
-			AtLeast(1),
-		).
 		Must("deliver event from subscriber 2 to reply", eventasssert.OnStore(sink).
 			MatchEvent(test.HasId(event.ID()), test.HasData([]byte("appended data 2"))).
+			AtLeast(1),
+		).
+		Must("deliver event from subscriber 1 to reply", eventasssert.OnStore(sink).
+			MatchEvent(test.HasId(event.ID()), test.HasData([]byte("appended data 1"))).
 			AtLeast(1),
 		)
 

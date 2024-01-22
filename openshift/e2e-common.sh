@@ -165,7 +165,7 @@ function run_e2e_encryption_auth_tests(){
       local run_command="-run ^(${test_name})$"
   fi
   # check for test flags
-  RUN_FLAGS="-timeout=1h -parallel=20 -run \"${regex}\""
+  RUN_FLAGS="-timeout=1h -parallel=20 -run ${regex}"
   if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
     RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi

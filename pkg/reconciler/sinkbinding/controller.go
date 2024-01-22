@@ -120,6 +120,10 @@ func NewController(
 		Logger:        logger,
 	})
 
+	globalResync = func() {
+		impl.GlobalResync(sbInformer.Informer())
+	}
+
 	sbInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 	namespaceInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 

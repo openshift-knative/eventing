@@ -156,8 +156,8 @@ function run_e2e_encryption_auth_tests(){
   echo "Waiting until secrets: ${ca_cert_tls_secret} exist in ${cert_manager_namespace}"
   wait_until_object_exists secret "${ca_cert_tls_secret}" "${cert_manager_namespace}" || return $?
 
-  oc get configmap -n "${cert_manager_namespace}" "${ca_cert_tls_secret}" -o=jsonpath='{.data.tls\.crt}' > tls.crt || return $?
-  oc get configmap -n "${cert_manager_namespace}" "${ca_cert_tls_secret}" -o=jsonpath='{.data.ca\.crt}' > ca.crt || return $?
+  oc get secret -n "${cert_manager_namespace}" "${ca_cert_tls_secret}" -o=jsonpath='{.data.tls\.crt}' > tls.crt || return $?
+  oc get secret -n "${cert_manager_namespace}" "${ca_cert_tls_secret}" -o=jsonpath='{.data.ca\.crt}' > ca.crt || return $?
   oc create configmap -n knative-eventing knative-eventing-bundle --from-file=tls.crt --from-file=ca.crt \
     --dry-run=client -o yaml | kubectl apply -n knative-eventing -f - || return $?
 

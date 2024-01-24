@@ -216,6 +216,7 @@ O2dgzikq8iSy1BlRsVw=
 								{
 									Name:      TrustedCAConfigMapVolume,
 									MountPath: OcpTrusedCaBundleMountPath,
+									SubPath:   TrustedCAKey,
 									ReadOnly:  true,
 								},
 							},

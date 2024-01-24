@@ -39,7 +39,7 @@ import (
 )
 
 const (
-	OcpTrusedCaBundleMountPath = "/ocp-serverless-custom-certs"
+	OcpTrusedCaBundleMountPath = "/ocp-serverless-custom-certs/" + TrustedCAKey
 )
 
 // ReceiveAdapterArgs are the arguments needed to create a ApiServer Receive Adapter.
@@ -134,6 +134,7 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 								{
 									Name:      TrustedCAConfigMapVolume,
 									MountPath: OcpTrusedCaBundleMountPath,
+									SubPath:   TrustedCAKey,
 									ReadOnly:  true,
 								},
 							},

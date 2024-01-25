@@ -188,3 +188,27 @@ function run_conformance_tests(){
 
   return $failed
 }
+
+function run_e2e_rekt_experimental_tests(){
+  header "Running E2E experimental Tests"
+
+  oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${SCRIPT_DIR}/knative-eventing-experimental.yaml"
+
+  images_file=$(dirname $(realpath "$0"))/images.yaml
+  make generate-release
+  cat "${images_file}"
+
+  oc wait --for=condition=Ready knativeeventing.operator.knative.dev knative-eventing -n "${EVENTING_NAMESPACE}" --timeout=900s
+
+  local failed=0
+
+  # check for test flags
+  RUN_FLAGS="-timeout=1h -parallel=20"
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
+  fi
+
+  go_test_e2e ${RUN_FLAGS} ./test/experimental --images.producer.file="${images_file}" || failed=$?
+
+  return $failed
+}

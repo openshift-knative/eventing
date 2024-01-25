@@ -39,6 +39,10 @@ test-reconciler:
 	sh openshift/e2e-rekt-tests.sh
 .PHONY: test-reconciler
 
+test-experimental:
+	sh openshift/e2e-experimental-tests.sh
+.PHONY: test-experimental
+
 # Target used by github actions.
 test-images:
 	for img in $(TEST_IMAGES); do \

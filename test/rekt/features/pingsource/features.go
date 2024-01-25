@@ -18,7 +18,7 @@ package pingsource
 
 import (
 	"context"
-
+	
 	"k8s.io/apimachinery/pkg/util/sets"
 	sourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	"knative.dev/eventing/test/rekt/resources/broker"
@@ -206,7 +206,7 @@ func SendsEventsWithEventTypes() *feature.Feature {
 	})
 	f.Requirement("PingSource goes ready", pingsource.IsReady(source))
 
-	expectedCeTypes := sets.New(sourcesv1.PingSourceEventType)
+	expectedCeTypes := sets.NewString(sourcesv1.PingSourceEventType)
 
 	f.Stable("pingsource as event source").
 		Must("delivers events on broker with URI", assert.OnStore(sink).MatchEvent(

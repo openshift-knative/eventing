@@ -43,6 +43,10 @@ test-encryption-auth-e2e:
 	sh openshift/e2e-encryption-auth-tests.sh
 .PHONY: test-encryption-auth-e2e
 
+test-experimental:
+	sh openshift/e2e-experimental-tests.sh
+.PHONY: test-experimental
+
 # Target used by github actions.
 test-images:
 	for img in $(TEST_IMAGES); do \

@@ -157,6 +157,9 @@ func AddTrustBundleVolumes(trustBundleLister corev1listers.ConfigMapLister, obj 
 			},
 		})
 	}
+	if len(sources) == 0 {
+		return pt, nil
+	}
 
 	volumeName := fmt.Sprintf("%s%s", TrustBundleVolumeNamePrefix, "volume")
 	vs := corev1.VolumeSource{

@@ -192,7 +192,9 @@ function run_conformance_tests(){
 function run_e2e_rekt_experimental_tests(){
   header "Running E2E experimental Tests"
 
-  oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${SCRIPT_DIR}/knative-eventing-experimental.yaml"
+  local script_dir; script_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+  oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${script_dir}/knative-eventing-experimental.yaml"
 
   images_file=$(dirname $(realpath "$0"))/images.yaml
   make generate-release

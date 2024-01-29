@@ -7,6 +7,8 @@ if [[ -n "${ARTIFACT_DIR:-}" ]]; then
   mkdir -p "${ARTIFACTS}"
 fi
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 export EVENTING_NAMESPACE="${EVENTING_NAMESPACE:-knative-eventing}"
 export SYSTEM_NAMESPACE=$EVENTING_NAMESPACE
 export ZIPKIN_NAMESPACE=$EVENTING_NAMESPACE
@@ -78,15 +80,15 @@ function timeout_non_zero() {
 function install_serverless(){
   header "Installing Serverless Operator"
 
+  KNATIVE_EVENTING_MANIFESTS_DIR="${SCRIPT_DIR}/release/artifacts"
+  export KNATIVE_EVENTING_MANIFESTS_DIR
+
   GO111MODULE=off go get -u github.com/openshift-knative/hack/cmd/sobranch
 
   local release
   release=$(yq r "${SCRIPT_DIR}/project.yaml" project.tag)
   release=${release/knative-/}
   so_branch=$( $(go env GOPATH)/bin/sobranch --upstream-version "${release}")
-
-  KNATIVE_EVENTING_MANIFESTS_DIR="$(pwd)/openshift/release/artifacts"
-  export KNATIVE_EVENTING_MANIFESTS_DIR
 
   local operator_dir=/tmp/serverless-operator
   git clone --branch "${so_branch}" https://github.com/openshift-knative/serverless-operator.git $operator_dir || git clone --branch main https://github.com/openshift-knative/serverless-operator.git $operator_dir
@@ -98,6 +100,33 @@ function install_serverless(){
   OPENSHIFT_CI="true" TRACING_BACKEND="zipkin" ENABLE_TRACING="true" make generated-files images install-tracing install-eventing || failed=$?
   cat ${operator_dir}/olm-catalog/serverless-operator/manifests/serverless-operator.clusterserviceversion.yaml
   popd || return $?
+
+  local openshift_version=$(oc version -o yaml | yq read - openshiftVersion)
+  local cert_manager_namespace="cert-manager"
+  if printf '%s\n4.12\n' "${openshift_version}" | sort --version-sort -C; then
+      # OCP version is older as 4.12 and thus cert-manager-operator is only available as tech-preview in this version (cert-manager-operator GA'ed in OCP 4.12)
+      echo "Running on OpenShift ${openshift_version} which supports cert-manager-operator only in tech-preview"
+      cert_manager_namespace="openshift-cert-manager"
+  else
+    echo "Running on OpenShift ${openshift_version} which supports GA'ed cert-manager-operator"
+  fi
+
+  oc apply \
+    -f "${SCRIPT_DIR}/tls/issuers/eventing-ca-issuer.yaml" \
+    -f "${SCRIPT_DIR}/tls/issuers/selfsigned-issuer.yaml" || return $?
+
+  oc apply -n "${cert_manager_namespace}" -f "${SCRIPT_DIR}/tls/issuers/ca-certificate.yaml" || return $?
+
+  local ca_cert_tls_secret="knative-eventing-ca"
+  echo "Waiting until secrets: ${ca_cert_tls_secret} exist in ${cert_manager_namespace}"
+  wait_until_object_exists secret "${ca_cert_tls_secret}" "${cert_manager_namespace}" || return $?
+
+  oc get secret -n "${cert_manager_namespace}" "${ca_cert_tls_secret}" -o=jsonpath='{.data.tls\.crt}' | base64 -d > tls.crt || return $?
+  oc get secret -n "${cert_manager_namespace}" "${ca_cert_tls_secret}" -o=jsonpath='{.data.ca\.crt}' | base64 -d > ca.crt || return $?
+  oc create configmap -n knative-eventing knative-eventing-bundle --from-file=tls.crt --from-file=ca.crt \
+    --dry-run=client -o yaml | kubectl apply -n knative-eventing -f - || return $?
+
+  oc label configmap -n knative-eventing knative-eventing-bundle networking.knative.dev/trust-bundle=true
 
   return $failed
 }
@@ -122,6 +151,36 @@ function run_e2e_rekt_tests(){
   fi
   # check for test flags
   RUN_FLAGS="-timeout=1h -parallel=20"
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
+  fi
+  go_test_e2e ${RUN_FLAGS} ./test/rekt --images.producer.file="${images_file}" || failed=$?
+
+  return $failed
+}
+
+function run_e2e_encryption_auth_tests(){
+  header "Running E2E Encryption and Auth Tests"
+
+  oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${SCRIPT_DIR}/knative-eventing-encryption-auth.yaml"
+
+  images_file=$(dirname $(realpath "$0"))/images.yaml
+  make generate-release
+  cat "${images_file}"
+
+  oc wait --for=condition=Ready knativeeventing.operator.knative.dev knative-eventing -n "${EVENTING_NAMESPACE}" --timeout=900s || return $?
+
+  local regex="TLS"
+
+  local test_name="${1:-}"
+  local run_command="-run ${regex}"
+  local failed=0
+
+  if [ -n "$test_name" ]; then
+      local run_command="-run ^(${test_name})$"
+  fi
+  # check for test flags
+  RUN_FLAGS="-timeout=1h -parallel=20 -run ${regex}"
   if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
     RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi
@@ -220,4 +279,30 @@ function run_e2e_rekt_experimental_tests(){
   go_test_e2e ${RUN_FLAGS} ./test/experimental --images.producer.file="${images_file}" || failed=$?
 
   return $failed
+}
+
+# Waits until the given object exists.
+# Parameters: $1 - the kind of the object.
+#             $2 - object's name.
+#             $3 - namespace (optional).
+function wait_until_object_exists() {
+  local KUBECTL_ARGS="get $1 $2"
+  local DESCRIPTION="$1 $2"
+
+  if [[ -n $3 ]]; then
+    KUBECTL_ARGS="get -n $3 $1 $2"
+    DESCRIPTION="$1 $3/$2"
+  fi
+  echo -n "Waiting until ${DESCRIPTION} exists"
+  for i in {1..250}; do  # timeout after 5 minutes
+    if kubectl ${KUBECTL_ARGS} > /dev/null 2>&1; then
+      echo -e "\n${DESCRIPTION} exists"
+      return 0
+    fi
+    echo -n "."
+    sleep 2
+  done
+  echo -e "\n\nERROR: timeout waiting for ${DESCRIPTION} to exist"
+  kubectl ${KUBECTL_ARGS}
+  return 1
 }

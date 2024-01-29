@@ -53,4 +53,3 @@ resolve_resources config/brokers/mt-channel-broker "${mt_channel_broker}" "$imag
 # TLS
 resolve_resources config/brokers/mt-channel-broker-tls "${eventing_tls_networking}" "$image_prefix" "$tag"
 resolve_resources config/channels/in-memory-channel-tls "${eventing_tls_networking}" "$image_prefix" "$tag"
-resolve_resources config/tls/issuers "${eventing_tls_networking}" "$image_prefix" "$tag"

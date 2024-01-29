@@ -36,10 +36,6 @@ import (
 	reconcilersource "knative.dev/eventing/pkg/reconciler/source"
 )
 
-const (
-	OcpTrusedCaBundleMountPath = "/ocp-serverless-custom-certs"
-)
-
 // ReceiveAdapterArgs are the arguments needed to create a ApiServer Receive Adapter.
 // Every field is required.
 type ReceiveAdapterArgs struct {
@@ -88,22 +84,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 				Spec: corev1.PodSpec{
 					ServiceAccountName: args.Source.Spec.ServiceAccountName,
 					EnableServiceLinks: ptr.Bool(false),
-					Volumes: []corev1.Volume{
-						{
-							Name: TrustedCAConfigMapVolume,
-							VolumeSource: corev1.VolumeSource{
-								ConfigMap: &corev1.ConfigMapVolumeSource{
-									LocalObjectReference: corev1.LocalObjectReference{Name: TrustedCAConfigMapName},
-									Items: []corev1.KeyToPath{
-										{
-											Key:  TrustedCAKey,
-											Path: TrustedCAKey,
-										},
-									},
-								},
-							},
-						},
-					},
 					Containers: []corev1.Container{
 						{
 							Name:  "receive-adapter",
@@ -128,13 +108,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
 								ReadOnlyRootFilesystem:   ptr.Bool(true),
 								RunAsNonRoot:             ptr.Bool(true),
 								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      TrustedCAConfigMapVolume,
-									MountPath: OcpTrusedCaBundleMountPath,
-									ReadOnly:  true,
-								},
 							},
 						},
 					},

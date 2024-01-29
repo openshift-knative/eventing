@@ -39,14 +39,10 @@ import (
 	"knative.dev/reconciler-test/pkg/eventshub/assert"
 	eventassert "knative.dev/reconciler-test/pkg/eventshub/assert"
 
-	sourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
 	"knative.dev/eventing/test/rekt/features"
 	"knative.dev/eventing/test/rekt/features/featureflags"
 	"knative.dev/eventing/test/rekt/features/source"
-	"knative.dev/eventing/test/rekt/resources/broker"
-	"knative.dev/eventing/test/rekt/resources/eventtype"
 	"knative.dev/eventing/test/rekt/resources/pingsource"
-	"knative.dev/eventing/test/rekt/resources/trigger"
 )
 
 func SendsEventsWithSinkRef() *feature.Feature {

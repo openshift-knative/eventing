@@ -78,11 +78,18 @@ function timeout_non_zero() {
 function install_serverless(){
   header "Installing Serverless Operator"
 
+  GO111MODULE=off go get -u github.com/openshift-knative/hack/cmd/sobranch
+
+  local release
+  release=$(yq r "${SCRIPT_DIR}/project.yaml" project.tag)
+  release=${release/knative-/}
+  so_branch=$( $(go env GOPATH)/bin/sobranch --upstream-version "${release}")
+
   KNATIVE_EVENTING_MANIFESTS_DIR="$(pwd)/openshift/release/artifacts"
   export KNATIVE_EVENTING_MANIFESTS_DIR
 
   local operator_dir=/tmp/serverless-operator
-  git clone --branch main https://github.com/openshift-knative/serverless-operator.git $operator_dir
+  git clone --branch "${so_branch}" https://github.com/openshift-knative/serverless-operator.git $operator_dir || git clone --branch main https://github.com/openshift-knative/serverless-operator.git $operator_dir
   export GOPATH=/tmp/go
   local failed=0
   pushd $operator_dir || return $?
@@ -185,6 +192,32 @@ function run_conformance_tests(){
     "$run_command" \
     -imagetemplate="$TEST_IMAGE_TEMPLATE" \
     ${common_opts} || failed=$?
+
+  return $failed
+}
+
+function run_e2e_rekt_experimental_tests(){
+  header "Running E2E experimental Tests"
+
+  local script_dir; script_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+  oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${script_dir}/knative-eventing-experimental.yaml"
+
+  images_file=$(dirname $(realpath "$0"))/images.yaml
+  make generate-release
+  cat "${images_file}"
+
+  oc wait --for=condition=Ready knativeeventing.operator.knative.dev knative-eventing -n "${EVENTING_NAMESPACE}" --timeout=900s
+
+  local failed=0
+
+  # check for test flags
+  RUN_FLAGS="-timeout=1h -parallel=20"
+  if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
+    RUN_FLAGS="${EVENTING_TEST_FLAGS}"
+  fi
+
+  go_test_e2e ${RUN_FLAGS} ./test/experimental --images.producer.file="${images_file}" || failed=$?
 
   return $failed
 }

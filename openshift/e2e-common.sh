@@ -143,7 +143,7 @@ function run_e2e_encryption_auth_tests(){
 
   oc wait --for=condition=Ready knativeeventing.operator.knative.dev knative-eventing -n "${EVENTING_NAMESPACE}" --timeout=900s || return $?
 
-  local regex="TLS"
+  local regex="TLS|OIDC"
 
   local test_name="${1:-}"
   local run_command="-run ${regex}"
@@ -153,7 +153,7 @@ function run_e2e_encryption_auth_tests(){
       local run_command="-run ^(${test_name})$"
   fi
   # check for test flags
-  RUN_FLAGS="-timeout=1h -parallel=20 -run ${regex}"
+  RUN_FLAGS="-timeout=1h -parallel=20 ${run_command}"
   if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
     RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi

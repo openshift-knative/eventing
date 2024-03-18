@@ -89,13 +89,13 @@ index 00000000000..5091d3d39f9
 +	}
 +}
 diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter.go b/pkg/reconciler/apiserversource/resources/receive_adapter.go
-index 6b19bbbb0e1..40148851e34 100644
+index 6b3bfe082..bb14eefc9 100644
 --- a/pkg/reconciler/apiserversource/resources/receive_adapter.go
 +++ b/pkg/reconciler/apiserversource/resources/receive_adapter.go
 @@ -36,6 +36,10 @@ import (
  	reconcilersource "knative.dev/eventing/pkg/reconciler/source"
  )
- 
+
 +const (
 +	OcpTrusedCaBundleMountPath = "/ocp-serverless-custom-certs"
 +)
@@ -103,8 +103,8 @@ index 6b19bbbb0e1..40148851e34 100644
  // ReceiveAdapterArgs are the arguments needed to create a ApiServer Receive Adapter.
  // Every field is required.
  type ReceiveAdapterArgs struct {
-@@ -84,6 +88,22 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
- 				Spec: corev1.PodSpec{
+@@ -86,6 +90,22 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
+ 					NodeSelector:       args.NodeSelector,
  					ServiceAccountName: args.Source.Spec.ServiceAccountName,
  					EnableServiceLinks: ptr.Bool(false),
 +					Volumes: []corev1.Volume{
@@ -126,9 +126,9 @@ index 6b19bbbb0e1..40148851e34 100644
  					Containers: []corev1.Container{
  						{
  							Name:  "receive-adapter",
-@@ -109,6 +129,13 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
- 								RunAsNonRoot:             ptr.Bool(true),
+@@ -112,6 +132,13 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
  								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+ 								SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
  							},
 +							VolumeMounts: []corev1.VolumeMount{
 +								{
@@ -141,7 +141,7 @@ index 6b19bbbb0e1..40148851e34 100644
  					},
  				},
 diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
-index 424d747e7fc..9de5c4a79cd 100644
+index 55c2817e5..0b03776d2 100644
 --- a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
 +++ b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
 @@ -135,6 +135,22 @@ O2dgzikq8iSy1BlRsVw=
@@ -167,9 +167,9 @@ index 424d747e7fc..9de5c4a79cd 100644
  					Containers: []corev1.Container{
  						{
  							Name:  "receive-adapter",
-@@ -196,6 +212,13 @@ O2dgzikq8iSy1BlRsVw=
- 								RunAsNonRoot:             ptr.Bool(true),
+@@ -197,6 +213,13 @@ O2dgzikq8iSy1BlRsVw=
  								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+ 								SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
  							},
 +							VolumeMounts: []corev1.VolumeMount{
 +								{

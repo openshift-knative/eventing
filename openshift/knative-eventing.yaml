@@ -1,0 +1,4 @@
+spec:
+  config:
+    config-features:
+      new-apiserversource-filters: "enabled"

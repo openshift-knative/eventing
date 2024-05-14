@@ -107,6 +107,8 @@ function install_serverless(){
 function run_e2e_rekt_tests(){
   header "Running E2E Reconciler Tests"
   HW_ARCH=$(arch)
+
+  oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${SCRIPT_DIR}/knative-eventing.yaml"
   
   images_file=$(dirname $(realpath "$0"))/images.yaml
   #skipping for P/Z as the test images aren't multiarch.

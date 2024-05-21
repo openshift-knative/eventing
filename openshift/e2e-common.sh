@@ -123,7 +123,7 @@ function run_e2e_rekt_tests(){
       local run_command="-run ^(${test_name})$"
   fi
   # check for test flags
-  RUN_FLAGS="-timeout=1h -parallel=20"
+  RUN_FLAGS="-timeout=90m -parallel=20"
   if [ -n "${EVENTING_TEST_FLAGS:-}" ]; then
     RUN_FLAGS="${EVENTING_TEST_FLAGS}"
   fi

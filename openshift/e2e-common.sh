@@ -14,6 +14,7 @@ export SYSTEM_NAMESPACE=$EVENTING_NAMESPACE
 export ZIPKIN_NAMESPACE=$EVENTING_NAMESPACE
 export KNATIVE_DEFAULT_NAMESPACE=$EVENTING_NAMESPACE
 export CONFIG_TRACING_CONFIG="test/config/config-tracing.yaml"
+export SKIP_GENERATE_RELEASE=${SKIP_GENERATE_RELEASE:-false}
 export EVENTING_TEST_IMAGE_TEMPLATE=$(cat <<-END
 {{- with .Name }}
 {{- if eq . "event-flaker"}}$KNATIVE_EVENTING_TEST_EVENT_FLAKER{{end -}}
@@ -106,12 +107,11 @@ function install_serverless(){
 
 function run_e2e_rekt_tests(){
   header "Running E2E Reconciler Tests"
-  HW_ARCH=$(arch)
-  
+
   images_file=$(dirname $(realpath "$0"))/images.yaml
-  #skipping for P/Z as the test images aren't multiarch.
-  if [ $HW_ARCH != "ppc64le" ] && [ $HW_ARCH != "s390x" ]; then
-    make generate-release
+  #allow skipping if test images aren't multiarch.
+  if [ "$SKIP_GENERATE_RELEASE" == false ]; then
+      make generate-release
   fi
   cat "${images_file}"
 
@@ -138,7 +138,11 @@ function run_e2e_encryption_auth_tests(){
   oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${SCRIPT_DIR}/knative-eventing-encryption-auth.yaml"
 
   images_file=$(dirname $(realpath "$0"))/images.yaml
-  make generate-release
+
+  #allow skipping if test images aren't multiarch.
+  if [ "$SKIP_GENERATE_RELEASE" == false ]; then
+    make generate-release
+  fi
   cat "${images_file}"
 
   oc wait --for=condition=Ready knativeeventing.operator.knative.dev knative-eventing -n "${EVENTING_NAMESPACE}" --timeout=900s || return $?

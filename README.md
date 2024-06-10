@@ -1,4 +1,4 @@
-# Knative Eventing - The Event-driven application platform for Kubernetes
+# Knative Eventing - The Event-driven Application Platform for Kubernetes
 
 _Secure event processing and discovery with CloudEvents_
 

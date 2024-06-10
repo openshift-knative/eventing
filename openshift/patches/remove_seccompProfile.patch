@@ -165,26 +165,26 @@ index 844c39845..1a590f667 100644
    sink:
      ref:
 diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter.go b/pkg/reconciler/apiserversource/resources/receive_adapter.go
-index 5f5888de4..924746d2d 100644
+index 0997c8c76..aa273b7c7 100644
 --- a/pkg/reconciler/apiserversource/resources/receive_adapter.go
 +++ b/pkg/reconciler/apiserversource/resources/receive_adapter.go
-@@ -130,7 +130,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
+@@ -110,7 +110,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
  								ReadOnlyRootFilesystem:   ptr.Bool(true),
  								RunAsNonRoot:             ptr.Bool(true),
  								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
 -								SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
  							},
- 							VolumeMounts: []corev1.VolumeMount{
- 								{
+ 						},
+ 					},
 diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
-index 37a6cc217..bc22707d4 100644
+index 55c2817e5..424d747e7 100644
 --- a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
 +++ b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
-@@ -211,7 +211,6 @@ O2dgzikq8iSy1BlRsVw=
+@@ -195,7 +195,6 @@ O2dgzikq8iSy1BlRsVw=
  								ReadOnlyRootFilesystem:   ptr.Bool(true),
  								RunAsNonRoot:             ptr.Bool(true),
  								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
 -								SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
  							},
- 							VolumeMounts: []corev1.VolumeMount{
- 								{
+ 						},
+ 					},

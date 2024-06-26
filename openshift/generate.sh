@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -xeuo pipefail
 
 repo_root_dir=$(dirname "$(realpath "${BASH_SOURCE[0]}")")/..
 
-generate_bin=$(mktemp -q /tmp/generate-XXXXXXXX)
-GO111MODULE=off go build -o "$generate_bin" github.com/openshift-knative/hack/cmd/generate
+# make sure we install the latest version
+rm -f $(go env GOPATH)/bin/generate
+GO111MODULE=off go install github.com/openshift-knative/hack/cmd/generate
 
-$generate_bin \
+$(go env GOPATH)/bin/generate \
   --root-dir "${repo_root_dir}" \
   --generators dockerfile \
   --dockerfile-image-builder-fmt "registry.ci.openshift.org/openshift/release:rhel-8-release-golang-%s-openshift-4.16"
 
+set +x

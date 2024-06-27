@@ -13,6 +13,7 @@ echo "Release: $release"
 
 "${root_dir}"/hack/update-codegen.sh
 git apply "${root_dir}"/openshift/patches/020-mutemetrics.patch
+git apply "${root_dir}"/openshift/patches/027-rekt-serviceaccounts-delete.patch
 
 ./openshift/generate.sh
 

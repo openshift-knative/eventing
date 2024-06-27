@@ -11,7 +11,7 @@ metadata:
       == "release-next"
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: serverless-operator-release-next-release-next
+    appstudio.openshift.io/application: serverless-operator-release-next
     appstudio.openshift.io/component: knative-eventing-ingress-release-next
     pipelines.appstudio.openshift.io/type: build
   name: knative-eventing-ingress-release-next-on-pull_request

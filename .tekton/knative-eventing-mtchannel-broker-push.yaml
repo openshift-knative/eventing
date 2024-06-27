@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/openshift-knative/serverless-operator?rev={{revision}}
+    build.appstudio.openshift.io/repo: https://github.com/openshift-knative/eventing?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
@@ -10,10 +10,10 @@ metadata:
       == "release-next"
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: serverless-operator-release-next
-    appstudio.openshift.io/component: knative-eventing-mtchannel-broker
+    appstudio.openshift.io/application: serverless-operator-release-next-release-next
+    appstudio.openshift.io/component: knative-eventing-mtchannel-broker-release-next
     pipelines.appstudio.openshift.io/type: build
-  name: serverless-operator-release-nex897b449947b118d1d7bf3aa98127a798-on-push
+  name: knative-eventing-mtchannel-broker-release-next-on-push
   namespace: ocp-serverless-tenant
 spec:
   params:

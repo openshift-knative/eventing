@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   annotations:
-    build.appstudio.openshift.io/repo: https://github.com/openshift-knative/serverless-operator?rev={{revision}}
+    build.appstudio.openshift.io/repo: https://github.com/openshift-knative/eventing?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
@@ -11,10 +11,10 @@ metadata:
       == "release-next"
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: serverless-operator-release-next
-    appstudio.openshift.io/component: knative-eventing-channel-dispatcher
+    appstudio.openshift.io/application: serverless-operator-release-next-release-next
+    appstudio.openshift.io/component: knative-eventing-channel-dispatcher-release-next
     pipelines.appstudio.openshift.io/type: build
-  name: serverless-operator-release-nex511d2afb0fcdf84613eb7e491fc18e31-on-pull_request
+  name: knative-eventing-channel-dispatcher-release-next-on-pull_request
   namespace: ocp-serverless-tenant
 spec:
   params:

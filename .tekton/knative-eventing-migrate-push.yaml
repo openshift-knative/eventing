@@ -13,7 +13,7 @@ metadata:
     appstudio.openshift.io/application: serverless-operator-release-next
     appstudio.openshift.io/component: knative-eventing-migrate-release-next
     pipelines.appstudio.openshift.io/type: build
-  name: knative-eventing-migrate-release-next-on-push
+  name: knative-eventing-migrate-on-push
   namespace: ocp-serverless-tenant
 spec:
   params:

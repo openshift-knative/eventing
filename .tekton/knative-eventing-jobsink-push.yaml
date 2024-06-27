@@ -13,7 +13,7 @@ metadata:
     appstudio.openshift.io/application: serverless-operator-release-next
     appstudio.openshift.io/component: knative-eventing-jobsink-release-next
     pipelines.appstudio.openshift.io/type: build
-  name: knative-eventing-jobsink-release-next-on-push
+  name: knative-eventing-jobsink-on-push
   namespace: ocp-serverless-tenant
 spec:
   params:

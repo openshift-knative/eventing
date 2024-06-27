@@ -14,7 +14,7 @@ metadata:
     appstudio.openshift.io/application: serverless-operator-release-next
     appstudio.openshift.io/component: knative-eventing-mtping-release-next
     pipelines.appstudio.openshift.io/type: build
-  name: knative-eventing-mtping-release-next-on-pull_request
+  name: knative-eventing-mtping-on-pull-request
   namespace: ocp-serverless-tenant
 spec:
   params:

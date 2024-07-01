@@ -66,8 +66,10 @@ var (
 	resultCodeKey        = tag.MustNewKey("result_code")
 )
 
-type admissionToValue func(*admissionv1.AdmissionRequest, *admissionv1.AdmissionResponse) string
-type conversionToValue func(*apixv1.ConversionRequest, *apixv1.ConversionResponse) string
+type (
+	admissionToValue  func(*admissionv1.AdmissionRequest, *admissionv1.AdmissionResponse) string
+	conversionToValue func(*apixv1.ConversionRequest, *apixv1.ConversionResponse) string
+)
 
 var (
 	allAdmissionTags = map[tag.Key]admissionToValue{
@@ -192,9 +194,8 @@ func (r *reporter) ReportAdmissionRequest(req *admissionv1.AdmissionRequest, res
 		return err
 	}
 
-	metrics.RecordBatch(ctx, requestCountM.M(1),
-		// Convert time.Duration in nanoseconds to milliseconds
-		responseTimeInMsecM.M(float64(d.Milliseconds())))
+	// TODO skonto: fix latency histogram
+	metrics.Record(ctx, requestCountM.M(1))
 	return nil
 }
 

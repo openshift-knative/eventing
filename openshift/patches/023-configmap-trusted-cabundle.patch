@@ -1,9 +1,9 @@
 diff --git a/config/openshift-trusted-cabundle.yaml b/config/openshift-trusted-cabundle.yaml
 new file mode 100644
-index 000000000..a4c1a5f73
+index 000000000..f05ec7652
 --- /dev/null
 +++ b/config/openshift-trusted-cabundle.yaml
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,26 @@
 +# Copyright 2020 The Knative Authors
 +#
 +# Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,4 +30,3 @@ index 000000000..a4c1a5f73
 +    networking.knative.dev/trust-bundle: "true"
 +  annotations:
 +    "openshift.io/owning-component": "Serverless Operator"
---

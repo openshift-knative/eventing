@@ -79,7 +79,7 @@ function timeout_non_zero() {
 }
 
 function install_serverless(){
-  header "Installing Serverless Operator"
+  echo "Installing Serverless Operator"
 
   KNATIVE_EVENTING_MANIFESTS_DIR="${SCRIPT_DIR}/release/artifacts"
   export KNATIVE_EVENTING_MANIFESTS_DIR
@@ -106,7 +106,7 @@ function install_serverless(){
 }
 
 function run_e2e_rekt_tests(){
-  header "Running E2E Reconciler Tests"
+  echo "Running E2E Reconciler Tests"
 
   images_file=$(dirname $(realpath "$0"))/images.yaml
   #allow skipping if test images aren't multiarch.
@@ -133,7 +133,7 @@ function run_e2e_rekt_tests(){
 }
 
 function run_e2e_encryption_auth_tests(){
-  header "Running E2E Encryption and Auth Tests"
+  echo "Running E2E Encryption and Auth Tests"
 
   oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${SCRIPT_DIR}/knative-eventing-encryption-auth.yaml"
 
@@ -167,7 +167,7 @@ function run_e2e_encryption_auth_tests(){
 }
 
 function run_e2e_tests(){
-  header "Running E2E tests with Multi Tenant Channel Based Broker"
+  echo "Running E2E tests with Multi Tenant Channel Based Broker"
   local test_name="${1:-}"
   local run_command=""
   local failed=0
@@ -200,7 +200,7 @@ function run_e2e_tests(){
 }
 
 function run_conformance_tests(){
-  header "Running Conformance tests with Multi Tenant Channel Based Broker"
+  echo "Running Conformance tests with Multi Tenant Channel Based Broker"
   local test_name="${1:-}"
   local run_command=""
   local failed=0
@@ -233,7 +233,7 @@ function run_conformance_tests(){
 }
 
 function run_e2e_rekt_experimental_tests(){
-  header "Running E2E experimental Tests"
+  echo "Running E2E experimental Tests"
 
   local script_dir; script_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 

@@ -22,7 +22,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/ocp-serverless-tenant/serverless-operator-release-next/knative-eventing-apiserver-receive-adapter-release-next:{{revision}}
+    value: quay.io/redhat-user-workloads/ocp-serverless-tenant/serverless-operator-release-next/knative-eventing-apiserver-receive-adapter:{{revision}}
   - name: dockerfile
     value: openshift/ci-operator/knative-images/apiserver_receive_adapter/Dockerfile
   pipelineSpec:

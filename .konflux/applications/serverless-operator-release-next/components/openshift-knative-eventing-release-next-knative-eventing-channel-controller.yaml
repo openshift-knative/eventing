@@ -1,0 +1,16 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Component
+metadata:
+  annotations:
+    build.appstudio.openshift.io/pipeline: '{"name":"docker-build","bundle":"latest"}'
+  name: knative-eventing-channel-controller-release-next
+spec:
+  componentName: knative-eventing-channel-controller
+  application: serverless-operator-release-next
+   
+  source:
+    git:
+      url: https://github.com/openshift-knative/eventing.git
+      context: 
+      dockerfileUrl: openshift/ci-operator/knative-images/channel_controller/Dockerfile
+      revision: release-next

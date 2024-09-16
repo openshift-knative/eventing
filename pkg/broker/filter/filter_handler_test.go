@@ -51,6 +51,7 @@ import (
 
 	brokerinformerfake "knative.dev/eventing/pkg/client/injection/informers/eventing/v1/broker/fake"
 	triggerinformerfake "knative.dev/eventing/pkg/client/injection/informers/eventing/v1/trigger/fake"
+	eventpolicyinformerfake "knative.dev/eventing/pkg/client/injection/informers/eventing/v1alpha1/eventpolicy/fake"
 
 	// Fake injection client
 	_ "knative.dev/eventing/pkg/client/injection/informers/eventing/v1alpha1/eventpolicy/fake"
@@ -439,7 +440,7 @@ func TestReceiver(t *testing.T) {
 
 			logger := zaptest.NewLogger(t, zaptest.WrapOptions(zap.AddCaller()))
 			oidcTokenProvider := auth.NewOIDCTokenProvider(ctx)
-			oidcTokenVerifier := auth.NewOIDCTokenVerifier(ctx)
+			oidcTokenVerifier := auth.NewOIDCTokenVerifier(ctx, eventpolicyinformerfake.Get(ctx).Lister())
 
 			for _, trig := range tc.triggers {
 				// Replace the SubscriberURI to point at our fake server.
@@ -638,7 +639,7 @@ func TestReceiver_WithSubscriptionsAPI(t *testing.T) {
 
 			logger := zaptest.NewLogger(t, zaptest.WrapOptions(zap.AddCaller()))
 			oidcTokenProvider := auth.NewOIDCTokenProvider(ctx)
-			oidcTokenVerifier := auth.NewOIDCTokenVerifier(ctx)
+			oidcTokenVerifier := auth.NewOIDCTokenVerifier(ctx, eventpolicyinformerfake.Get(ctx).Lister())
 
 			// Replace the SubscriberURI to point at our fake server.
 			for _, trig := range tc.triggers {

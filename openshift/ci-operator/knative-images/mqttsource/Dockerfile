@@ -15,12 +15,9 @@ FROM $GO_RUNTIME
 
 ARG VERSION=knative-v1.15
 
-# Install zoneinfo.
-RUN microdnf install tzdata
+COPY --from=builder /usr/bin/main /usr/bin/mqttsource
 
 USER 65532
-
-COPY --from=builder /usr/bin/main /usr/bin/main
 
 LABEL \
       com.redhat.component="openshift-serverless-1-eventing-mqttsource-rhel8-container" \
@@ -29,6 +26,8 @@ LABEL \
       summary="Red Hat OpenShift Serverless 1 Eventing Mqttsource" \
       maintainer="serverless-support@redhat.com" \
       description="Red Hat OpenShift Serverless 1 Eventing Mqttsource" \
-      io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Mqttsource"
+      io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Mqttsource" \
+      io.k8s.description="Red Hat OpenShift Serverless Eventing Mqttsource" \
+      io.openshift.tags="mqttsource"
 
-ENTRYPOINT ["/usr/bin/main"]
+ENTRYPOINT ["/usr/bin/mqttsource"]

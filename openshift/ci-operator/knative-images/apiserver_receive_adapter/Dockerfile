@@ -15,12 +15,9 @@ FROM $GO_RUNTIME
 
 ARG VERSION=knative-v1.15
 
-# Install zoneinfo.
-RUN microdnf install tzdata
+COPY --from=builder /usr/bin/main /usr/bin/apiserver_receive_adapter
 
 USER 65532
-
-COPY --from=builder /usr/bin/main /usr/bin/main
 
 LABEL \
       com.redhat.component="openshift-serverless-1-eventing-apiserver-receive-adapter-rhel8-container" \
@@ -29,6 +26,8 @@ LABEL \
       summary="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
       maintainer="serverless-support@redhat.com" \
       description="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
-      io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter"
+      io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
+      io.k8s.description="Red Hat OpenShift Serverless Eventing Apiserver Receive Adapter" \
+      io.openshift.tags="apiserver-receive-adapter"
 
-ENTRYPOINT ["/usr/bin/main"]
+ENTRYPOINT ["/usr/bin/apiserver_receive_adapter"]

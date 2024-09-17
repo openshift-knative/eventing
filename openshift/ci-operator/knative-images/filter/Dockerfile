@@ -15,12 +15,9 @@ FROM $GO_RUNTIME
 
 ARG VERSION=knative-v1.15
 
-# Install zoneinfo.
-RUN microdnf install tzdata
+COPY --from=builder /usr/bin/main /usr/bin/filter
 
 USER 65532
-
-COPY --from=builder /usr/bin/main /usr/bin/main
 
 LABEL \
       com.redhat.component="openshift-serverless-1-eventing-broker-filter-rhel8-container" \
@@ -29,6 +26,8 @@ LABEL \
       summary="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
       maintainer="serverless-support@redhat.com" \
       description="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
-      io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Broker Filter"
+      io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
+      io.k8s.description="Red Hat OpenShift Serverless Eventing Broker Filter" \
+      io.openshift.tags="broker-filter"
 
-ENTRYPOINT ["/usr/bin/main"]
+ENTRYPOINT ["/usr/bin/filter"]

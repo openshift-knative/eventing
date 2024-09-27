@@ -1,0 +1,154 @@
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml b/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml
+index 83b2c55fb..c780e86ab 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/103-pod.yaml
+@@ -19,6 +19,9 @@ metadata:
+   namespace: {{ .namespace }}
+   labels:
+     app: eventshub-{{ .name }}
++    {{ range $key, $value := .labels }}
++    {{ $key }}: "{{ $value }}"
++    {{ end }}
+   {{ if .annotations }}
+   annotations:
+     {{ range $key, $value := .annotations }}
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/104-forwarder.yaml b/vendor/knative.dev/reconciler-test/pkg/eventshub/104-forwarder.yaml
+index e014d5fb9..a34e71324 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/104-forwarder.yaml
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/104-forwarder.yaml
+@@ -25,12 +25,20 @@ metadata:
+   {{ end }}
+ spec:
+   template:
+-    {{ if .podannotations }}
++    {{ if or .podannotations .podlabels }}
+     metadata:
++      {{ if .podannotations }}
+       annotations:
+         {{ range $key, $value := .podannotations }}
+           {{ $key }}: "{{ $value }}"
+-          {{ end }}
++        {{ end }}
++      {{ end }}
++      {{ if .podlabels }}
++      labels:
++        {{ range $key, $value := .podlabels }}
++          {{ $key }}: "{{ $value }}"
++        {{ end }}
++      {{ end }}
+     {{ end }}
+     spec:
+       serviceAccountName: "{{ .name }}"
+diff --git a/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go b/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go
+index 2953edf1a..65cb3d6ab 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go
++++ b/vendor/knative.dev/reconciler-test/pkg/eventshub/resources.go
+@@ -165,6 +165,7 @@ func Install(name string, options ...EventsHubOption) feature.StepFn {
+ 
+ 		if ic := environment.GetIstioConfig(ctx); ic.Enabled {
+ 			manifest.WithIstioPodAnnotations(cfg)
++			manifest.WithIstioPodLabels(cfg)
+ 		}
+ 
+ 		manifest.PodSecurityCfgFn(ctx, t)(cfg)
+diff --git a/vendor/knative.dev/reconciler-test/pkg/manifest/options.go b/vendor/knative.dev/reconciler-test/pkg/manifest/options.go
+index bb51fb58a..6e0aa92b9 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/manifest/options.go
++++ b/vendor/knative.dev/reconciler-test/pkg/manifest/options.go
+@@ -63,6 +63,21 @@ func WithPodAnnotations(additional map[string]interface{}) CfgFn {
+ 	}
+ }
+ 
++// WithPodLabels appends pod labels (usually used by types where pod template is embedded)
++func WithPodLabels(additional map[string]string) CfgFn {
++	return func(cfg map[string]interface{}) {
++		if ann, ok := cfg["podlabels"]; ok {
++			m := make(map[string]interface{}, len(additional))
++			for k, v := range additional {
++				m[k] = v
++			}
++			appendToOriginal(ann, m)
++			return
++		}
++		cfg["podlabels"] = additional
++	}
++}
++
+ func appendToOriginal(original interface{}, additional map[string]interface{}) {
+ 	annotations := original.(map[string]interface{})
+ 	for k, v := range additional {
+@@ -92,3 +107,12 @@ func WithIstioPodAnnotations(cfg map[string]interface{}) {
+ 	WithAnnotations(podAnnotations)(cfg)
+ 	WithPodAnnotations(podAnnotations)(cfg)
+ }
++
++func WithIstioPodLabels(cfg map[string]interface{}) {
++	podLabels := map[string]string{
++		"sidecar.istio.io/inject": "true",
++	}
++
++	WithLabels(podLabels)(cfg)
++	WithPodLabels(podLabels)(cfg)
++}
+diff --git a/vendor/knative.dev/reconciler-test/pkg/resources/cronjob/cronjob.go b/vendor/knative.dev/reconciler-test/pkg/resources/cronjob/cronjob.go
+index 7da7341f5..cf82fc85d 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/resources/cronjob/cronjob.go
++++ b/vendor/knative.dev/reconciler-test/pkg/resources/cronjob/cronjob.go
+@@ -62,6 +62,7 @@ func Install(name string, image string, options ...manifest.CfgFn) feature.StepF
+ 
+ 		if ic := environment.GetIstioConfig(ctx); ic.Enabled {
+ 			manifest.WithIstioPodAnnotations(cfg)
++			manifest.WithIstioPodLabels(cfg)
+ 		}
+ 
+ 		manifest.PodSecurityCfgFn(ctx, t)(cfg)
+diff --git a/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.go b/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.go
+index a961d8a6a..3388fcc05 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.go
++++ b/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.go
+@@ -49,6 +49,7 @@ func Install(name string, image string, options ...manifest.CfgFn) feature.StepF
+ 
+ 		if ic := environment.GetIstioConfig(ctx); ic.Enabled {
+ 			manifest.WithIstioPodAnnotations(cfg)
++			manifest.WithIstioPodLabels(cfg)
+ 		}
+ 
+ 		manifest.PodSecurityCfgFn(ctx, t)(cfg)
+diff --git a/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.yaml b/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.yaml
+index 189cfd6f0..48ff661cf 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.yaml
++++ b/vendor/knative.dev/reconciler-test/pkg/resources/deployment/deployment.yaml
+@@ -36,6 +36,9 @@ spec:
+         {{ range $key, $value := .selectors }}
+         {{ $key }}: "{{ $value }}"
+         {{ end }}
++        {{ range $key, $value := .podlabels }}
++        {{ $key }}: "{{ $value }}"
++        {{ end }}
+     spec:
+       {{ if .podSecurityContext }}
+       securityContext:
+diff --git a/vendor/knative.dev/reconciler-test/pkg/resources/job/job.go b/vendor/knative.dev/reconciler-test/pkg/resources/job/job.go
+index b9237df3d..aee655360 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/resources/job/job.go
++++ b/vendor/knative.dev/reconciler-test/pkg/resources/job/job.go
+@@ -47,6 +47,7 @@ func Install(name string, image string, options ...manifest.CfgFn) feature.StepF
+ 
+ 		if ic := environment.GetIstioConfig(ctx); ic.Enabled {
+ 			manifest.WithIstioPodAnnotations(cfg)
++			manifest.WithIstioPodLabels(cfg)
+ 		}
+ 
+ 		manifest.PodSecurityCfgFn(ctx, t)(cfg)
+diff --git a/vendor/knative.dev/reconciler-test/pkg/resources/pod/pod.go b/vendor/knative.dev/reconciler-test/pkg/resources/pod/pod.go
+index 93fd8f51a..0bec72e36 100644
+--- a/vendor/knative.dev/reconciler-test/pkg/resources/pod/pod.go
++++ b/vendor/knative.dev/reconciler-test/pkg/resources/pod/pod.go
+@@ -44,6 +44,7 @@ func Install(name string, image string, opts ...manifest.CfgFn) feature.StepFn {
+ 
+ 		if ic := environment.GetIstioConfig(ctx); ic.Enabled {
+ 			manifest.WithIstioPodAnnotations(cfg)
++			manifest.WithIstioPodLabels(cfg)
+ 		}
+ 
+ 		manifest.PodSecurityCfgFn(ctx, t)(cfg)

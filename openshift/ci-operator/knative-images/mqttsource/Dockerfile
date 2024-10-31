@@ -14,6 +14,7 @@ RUN go build -tags strictfipsruntime -o /usr/bin/main ./cmd/mqttsource
 FROM $GO_RUNTIME
 
 ARG VERSION=knative-v1.15
+RUN microdnf update tzdata -y && microdnf reinstall tzdata -y
 
 COPY --from=builder /usr/bin/main /usr/bin/mqttsource
 

@@ -14,6 +14,7 @@ RUN go build -tags strictfipsruntime -o /usr/bin/main ./cmd/apiserver_receive_ad
 FROM $GO_RUNTIME
 
 ARG VERSION=knative-v1.16
+RUN microdnf update tzdata -y && microdnf reinstall tzdata -y
 
 COPY --from=builder /usr/bin/main /usr/bin/apiserver_receive_adapter
 

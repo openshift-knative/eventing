@@ -1,20 +1,34 @@
 # DO NOT EDIT! Generated Dockerfile for test/test_images/wathola-fetcher.
-FROM registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.22-openshift-4.17 as builder
+ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.22-openshift-4.17
+ARG GO_RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal
+
+FROM $GO_BUILDER as builder
 
 COPY . .
 
-RUN mkdir -p /var/run/ko && \
-    mkdir -p test/test_images/wathola-fetcher/kodata && \
-    go build -o /usr/bin/main ./test/test_images/wathola-fetcher && \
-    cp -r test/test_images/wathola-fetcher/kodata /var/run/ko
+ENV CGO_ENABLED=1
+ENV GOEXPERIMENT=strictfipsruntime
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+RUN go build -tags strictfipsruntime -o /usr/bin/main ./test/test_images/wathola-fetcher
 
-# install the missing zoneinfo to ubi-minimal
-RUN microdnf install tzdata
+FROM $GO_RUNTIME
+
+ARG VERSION=knative-v1.14
+RUN microdnf update tzdata -y && microdnf reinstall tzdata -y
+
+COPY --from=builder /usr/bin/main /usr/bin/wathola-fetcher
 
 USER 65532
 
-COPY --from=builder /usr/bin/main /usr/bin/main
-COPY --from=builder /var/run/ko /var/run/ko
-ENTRYPOINT ["/usr/bin/main"]
+LABEL \
+      com.redhat.component="openshift-serverless-1-eventing-test-test-images-wathola-fetcher-rhel8-container" \
+      name="openshift-serverless-1/eventing-test-test-images-wathola-fetcher-rhel8" \
+      version=$VERSION \
+      summary="Red Hat OpenShift Serverless 1 Eventing Test Test Images Wathola Fetcher" \
+      maintainer="serverless-support@redhat.com" \
+      description="Red Hat OpenShift Serverless 1 Eventing Test Test Images Wathola Fetcher" \
+      io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Test Test Images Wathola Fetcher" \
+      io.k8s.description="Red Hat OpenShift Serverless Eventing Test Test Images Wathola Fetcher" \
+      io.openshift.tags="test-test-images-wathola-fetcher"
+
+ENTRYPOINT ["/usr/bin/wathola-fetcher"]

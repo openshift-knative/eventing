@@ -35,6 +35,7 @@ import (
 	"knative.dev/eventing/pkg/reconciler/channel"
 	"knative.dev/eventing/pkg/reconciler/containersource"
 	"knative.dev/eventing/pkg/reconciler/eventtype"
+	integrationsink "knative.dev/eventing/pkg/reconciler/integration/sink"
 	integrationsource "knative.dev/eventing/pkg/reconciler/integration/source"
 	"knative.dev/eventing/pkg/reconciler/parallel"
 	"knative.dev/eventing/pkg/reconciler/pingsource"
@@ -78,6 +79,7 @@ func main() {
 
 		// Sinks
 		jobsink.NewController,
+		integrationsink.NewController,
 
 		// Sugar
 		sugarnamespace.NewController,

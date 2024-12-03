@@ -53,9 +53,11 @@ import (
 	triggerinformerfake "knative.dev/eventing/pkg/client/injection/informers/eventing/v1/trigger/fake"
 	eventpolicyinformerfake "knative.dev/eventing/pkg/client/injection/informers/eventing/v1alpha1/eventpolicy/fake"
 
+	_ "knative.dev/pkg/client/injection/kube/client/fake"
+	_ "knative.dev/pkg/client/injection/kube/informers/factory/filtered/fake"
+
 	// Fake injection client
 	_ "knative.dev/eventing/pkg/client/injection/informers/eventing/v1alpha1/eventpolicy/fake"
-	_ "knative.dev/pkg/client/injection/kube/client/fake"
 )
 
 const (
@@ -109,7 +111,7 @@ func TestReceiver(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 		},
 		"Path too long": {
-			request:        httptest.NewRequest(http.MethodPost, "/triggers/test-namespace/test-trigger/extra", nil),
+			request:        httptest.NewRequest(http.MethodPost, "/triggers/test-namespace/test-trigger/uuid/extra/extra", nil),
 			expectedStatus: http.StatusBadRequest,
 		},
 		"Path without prefix": {
@@ -118,7 +120,7 @@ func TestReceiver(t *testing.T) {
 		},
 		"Trigger.Get fails": {
 			// No trigger exists, so the Get will fail.
-			expectedStatus: http.StatusBadRequest,
+			expectedStatus: http.StatusNotFound,
 		},
 		"Trigger doesn't have SubscriberURI": {
 			triggers: []*eventingv1.Trigger{

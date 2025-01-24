@@ -4,6 +4,7 @@ ARG GO_RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal
 
 FROM $GO_BUILDER as builder
 
+WORKDIR /workspace
 COPY . .
 
 ENV CGO_ENABLED=1
@@ -17,6 +18,7 @@ ARG VERSION=knative-v1.16
 RUN microdnf update tzdata -y && microdnf reinstall tzdata -y
 
 COPY --from=builder /usr/bin/main /usr/bin/webhook
+COPY LICENSE /licenses/
 
 USER 65532
 

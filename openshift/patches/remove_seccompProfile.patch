@@ -1,8 +1,8 @@
 diff --git a/config/brokers/mt-channel-broker/deployments/broker-filter.yaml b/config/brokers/mt-channel-broker/deployments/broker-filter.yaml
-index 924c132fd..49d53ab9e 100644
+index f208d9afa..5a38bea70 100644
 --- a/config/brokers/mt-channel-broker/deployments/broker-filter.yaml
 +++ b/config/brokers/mt-channel-broker/deployments/broker-filter.yaml
-@@ -97,8 +97,6 @@ spec:
+@@ -108,8 +108,6 @@ spec:
            capabilities:
              drop:
              - ALL
@@ -12,10 +12,10 @@ index 924c132fd..49d53ab9e 100644
  ---
  
 diff --git a/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml b/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml
-index d8f5ab9a2..7099f5689 100644
+index 2fec3bdf2..9ab2ffea6 100644
 --- a/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml
 +++ b/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml
-@@ -97,8 +97,6 @@ spec:
+@@ -108,8 +108,6 @@ spec:
            capabilities:
              drop:
              - ALL
@@ -25,9 +25,22 @@ index d8f5ab9a2..7099f5689 100644
  ---
  
 diff --git a/config/brokers/mt-channel-broker/deployments/controller.yaml b/config/brokers/mt-channel-broker/deployments/controller.yaml
-index d4e853b7c..a0eb8583b 100644
+index 2235e02dc..06ca7df6d 100644
 --- a/config/brokers/mt-channel-broker/deployments/controller.yaml
 +++ b/config/brokers/mt-channel-broker/deployments/controller.yaml
+@@ -80,8 +80,6 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+ 
+         livenessProbe:
+           httpGet:
+diff --git a/config/channels/in-memory-channel/deployments/controller.yaml b/config/channels/in-memory-channel/deployments/controller.yaml
+index 08ff23ad9..018ae6bff 100644
+--- a/config/channels/in-memory-channel/deployments/controller.yaml
++++ b/config/channels/in-memory-channel/deployments/controller.yaml
 @@ -81,8 +81,6 @@ spec:
            capabilities:
              drop:
@@ -37,34 +50,21 @@ index d4e853b7c..a0eb8583b 100644
  
          ports:
          - name: metrics
-diff --git a/config/channels/in-memory-channel/deployments/controller.yaml b/config/channels/in-memory-channel/deployments/controller.yaml
-index 42ef5e957..17ed17d7f 100644
---- a/config/channels/in-memory-channel/deployments/controller.yaml
-+++ b/config/channels/in-memory-channel/deployments/controller.yaml
-@@ -78,8 +78,6 @@ spec:
-           capabilities:
-             drop:
-             - ALL
--          seccompProfile:
--            type: RuntimeDefault
- 
-         ports:
-         - name: metrics
 diff --git a/config/channels/in-memory-channel/deployments/dispatcher.yaml b/config/channels/in-memory-channel/deployments/dispatcher.yaml
-index fc88c6697..240d2b662 100644
+index f0eb20d16..cf259fa55 100644
 --- a/config/channels/in-memory-channel/deployments/dispatcher.yaml
 +++ b/config/channels/in-memory-channel/deployments/dispatcher.yaml
-@@ -95,5 +95,3 @@ spec:
+@@ -108,5 +108,3 @@ spec:
            capabilities:
              drop:
              - ALL
 -          seccompProfile:
 -            type: RuntimeDefault
 diff --git a/config/core/deployments/controller.yaml b/config/core/deployments/controller.yaml
-index d1a38ea62..ddf1259c6 100644
+index 77ff138b5..ae0b87de1 100644
 --- a/config/core/deployments/controller.yaml
 +++ b/config/core/deployments/controller.yaml
-@@ -97,8 +97,6 @@ spec:
+@@ -96,8 +96,6 @@ spec:
            capabilities:
              drop:
              - ALL
@@ -73,20 +73,34 @@ index d1a38ea62..ddf1259c6 100644
  
          livenessProbe:
            httpGet:
-diff --git a/config/core/deployments/pingsource-mt-adapter.yaml b/config/core/deployments/pingsource-mt-adapter.yaml
-index c48b4ad21..ccf1af351 100644
---- a/config/core/deployments/pingsource-mt-adapter.yaml
-+++ b/config/core/deployments/pingsource-mt-adapter.yaml
-@@ -99,7 +99,5 @@ spec:
+diff --git a/config/core/deployments/job-sink.yaml b/config/core/deployments/job-sink.yaml
+index 20eefe6ca..148e5de6e 100644
+--- a/config/core/deployments/job-sink.yaml
++++ b/config/core/deployments/job-sink.yaml
+@@ -120,8 +120,6 @@ spec:
              capabilities:
                drop:
                - ALL
 -            seccompProfile:
 -              type: RuntimeDefault
  
-       serviceAccountName: pingsource-mt-adapter
+       serviceAccountName: job-sink
+ 
+diff --git a/config/core/deployments/pingsource-mt-adapter.yaml b/config/core/deployments/pingsource-mt-adapter.yaml
+index 0f62925c3..3ebab545c 100644
+--- a/config/core/deployments/pingsource-mt-adapter.yaml
++++ b/config/core/deployments/pingsource-mt-adapter.yaml
+@@ -103,8 +103,6 @@ spec:
+             capabilities:
+               drop:
+               - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+ 
+           livenessProbe:
+             httpGet:
 diff --git a/config/core/deployments/webhook.yaml b/config/core/deployments/webhook.yaml
-index 2ba3c1190..1995a25c3 100644
+index fd26a0e41..bf885fc13 100644
 --- a/config/core/deployments/webhook.yaml
 +++ b/config/core/deployments/webhook.yaml
 @@ -101,8 +101,6 @@ spec:
@@ -99,30 +113,30 @@ index 2ba3c1190..1995a25c3 100644
          ports:
          - name: https-webhook
 diff --git a/config/post-install/storage-version-migrator.yaml b/config/post-install/storage-version-migrator.yaml
-index c2d6d836f..8fcc812e7 100644
+index 1d2b058f6..a65e89d75 100644
 --- a/config/post-install/storage-version-migrator.yaml
 +++ b/config/post-install/storage-version-migrator.yaml
-@@ -62,5 +62,3 @@ spec:
+@@ -65,5 +65,3 @@ spec:
              capabilities:
                drop:
                - ALL
 -            seccompProfile:
 -              type: RuntimeDefault
 diff --git a/config/tools/appender/appender.yaml b/config/tools/appender/appender.yaml
-index 169405198..63e9db6fc 100644
+index 68c07fdb7..f82b42353 100644
 --- a/config/tools/appender/appender.yaml
 +++ b/config/tools/appender/appender.yaml
-@@ -35,5 +35,3 @@ spec:
+@@ -34,5 +34,3 @@ spec:
            capabilities:
              drop:
              - ALL
 -          seccompProfile:
 -            type: RuntimeDefault
 diff --git a/config/tools/event-display/event-display.yaml b/config/tools/event-display/event-display.yaml
-index 57538dcc9..fc824255e 100644
+index eb8861971..eb6476759 100644
 --- a/config/tools/event-display/event-display.yaml
 +++ b/config/tools/event-display/event-display.yaml
-@@ -32,5 +32,3 @@ spec:
+@@ -31,5 +31,3 @@ spec:
            capabilities:
              drop:
              - ALL
@@ -136,6 +150,19 @@ index c0753a3c8..1c0ba857e 100644
              capabilities:
                drop:
                - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+ 
+   sink:
+     ref:
+diff --git a/config/tools/mqttsource/mqttsource.yaml b/config/tools/mqttsource/mqttsource.yaml
+index 15f009829..42b4d3e27 100644
+--- a/config/tools/mqttsource/mqttsource.yaml
++++ b/config/tools/mqttsource/mqttsource.yaml
+@@ -30,8 +30,6 @@ spec:
+             capabilities:
+               drop:
+                 - ALL
 -            seccompProfile:
 -              type: RuntimeDefault
  
@@ -165,10 +192,10 @@ index 844c39845..1a590f667 100644
    sink:
      ref:
 diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter.go b/pkg/reconciler/apiserversource/resources/receive_adapter.go
-index 0997c8c76..aa273b7c7 100644
+index 4bb823647..23d37305a 100644
 --- a/pkg/reconciler/apiserversource/resources/receive_adapter.go
 +++ b/pkg/reconciler/apiserversource/resources/receive_adapter.go
-@@ -110,7 +110,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
+@@ -120,7 +120,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
  								ReadOnlyRootFilesystem:   ptr.Bool(true),
  								RunAsNonRoot:             ptr.Bool(true),
  								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
@@ -177,10 +204,10 @@ index 0997c8c76..aa273b7c7 100644
  						},
  					},
 diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
-index 55c2817e5..424d747e7 100644
+index 9b25dbfb6..1db66692a 100644
 --- a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
 +++ b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
-@@ -195,7 +195,6 @@ O2dgzikq8iSy1BlRsVw=
+@@ -205,7 +205,6 @@ O2dgzikq8iSy1BlRsVw=
  								ReadOnlyRootFilesystem:   ptr.Bool(true),
  								RunAsNonRoot:             ptr.Bool(true),
  								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},

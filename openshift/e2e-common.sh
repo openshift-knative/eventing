@@ -240,7 +240,9 @@ function run_e2e_rekt_experimental_tests(){
   oc patch knativeeventing --type merge -n "${EVENTING_NAMESPACE}" knative-eventing --patch-file "${script_dir}/knative-eventing-experimental.yaml"
 
   images_file=$(dirname $(realpath "$0"))/images.yaml
-  make generate-release
+  if [ "$SKIP_GENERATE_RELEASE" == false ]; then
+    make generate-release
+  fi
   cat "${images_file}"
 
   oc wait --for=condition=Ready knativeeventing.operator.knative.dev knative-eventing -n "${EVENTING_NAMESPACE}" --timeout=900s

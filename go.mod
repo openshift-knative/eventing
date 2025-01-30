@@ -9,7 +9,7 @@ require (
 	github.com/cloudevents/sdk-go/protocol/mqtt_paho/v2 v2.0.0-20240508060731-1ed9471c98bd
 	github.com/cloudevents/sdk-go/sql/v2 v2.0.0-20240712172937-3ce6b2f1f011
 	github.com/cloudevents/sdk-go/v2 v2.15.2
-	github.com/coreos/go-oidc/v3 v3.9.0
+	github.com/coreos/go-oidc/v3 v3.12.0
 	github.com/eclipse/paho.golang v0.12.0
 	github.com/go-jose/go-jose/v3 v3.0.3
 	github.com/google/go-cmp v0.6.0
@@ -64,6 +64,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect

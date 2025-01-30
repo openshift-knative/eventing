@@ -27,7 +27,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rickb777/date v1.13.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/otel v1.24.0

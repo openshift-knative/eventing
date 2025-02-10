@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	cesql "github.com/cloudevents/sdk-go/sql/v2"
-	sqlerrors "github.com/cloudevents/sdk-go/sql/v2/errors"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 )
 
@@ -18,7 +17,6 @@ var LengthFunction function = function{
 	name:         "LENGTH",
 	fixedArgs:    []cesql.Type{cesql.StringType},
 	variadicArgs: nil,
-	returnType:   cesql.IntegerType,
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		return int32(len(i[0].(string))), nil
 	},
@@ -27,7 +25,6 @@ var LengthFunction function = function{
 var ConcatFunction function = function{
 	name:         "CONCAT",
 	variadicArgs: cesql.TypePtr(cesql.StringType),
-	returnType:   cesql.StringType,
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		var sb strings.Builder
 		for _, v := range i {
@@ -41,7 +38,6 @@ var ConcatWSFunction function = function{
 	name:         "CONCAT_WS",
 	fixedArgs:    []cesql.Type{cesql.StringType},
 	variadicArgs: cesql.TypePtr(cesql.StringType),
-	returnType:   cesql.StringType,
 	fn: func(event cloudevents.Event, args []interface{}) (interface{}, error) {
 		if len(args) == 1 {
 			return "", nil
@@ -59,36 +55,32 @@ var ConcatWSFunction function = function{
 }
 
 var LowerFunction function = function{
-	name:       "LOWER",
-	fixedArgs:  []cesql.Type{cesql.StringType},
-	returnType: cesql.StringType,
+	name:      "LOWER",
+	fixedArgs: []cesql.Type{cesql.StringType},
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		return strings.ToLower(i[0].(string)), nil
 	},
 }
 
 var UpperFunction function = function{
-	name:       "UPPER",
-	fixedArgs:  []cesql.Type{cesql.StringType},
-	returnType: cesql.StringType,
+	name:      "UPPER",
+	fixedArgs: []cesql.Type{cesql.StringType},
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		return strings.ToUpper(i[0].(string)), nil
 	},
 }
 
 var TrimFunction function = function{
-	name:       "TRIM",
-	fixedArgs:  []cesql.Type{cesql.StringType},
-	returnType: cesql.StringType,
+	name:      "TRIM",
+	fixedArgs: []cesql.Type{cesql.StringType},
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		return strings.TrimSpace(i[0].(string)), nil
 	},
 }
 
 var LeftFunction function = function{
-	name:       "LEFT",
-	fixedArgs:  []cesql.Type{cesql.StringType, cesql.IntegerType},
-	returnType: cesql.StringType,
+	name:      "LEFT",
+	fixedArgs: []cesql.Type{cesql.StringType, cesql.IntegerType},
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		str := i[0].(string)
 		y := int(i[1].(int32))
@@ -98,7 +90,7 @@ var LeftFunction function = function{
 		}
 
 		if y < 0 {
-			return str, sqlerrors.NewFunctionEvaluationError(fmt.Errorf("LEFT y argument is < 0: %d", y))
+			return nil, fmt.Errorf("LEFT y argument is < 0: %d", y)
 		}
 
 		return str[0:y], nil
@@ -106,9 +98,8 @@ var LeftFunction function = function{
 }
 
 var RightFunction function = function{
-	name:       "RIGHT",
-	fixedArgs:  []cesql.Type{cesql.StringType, cesql.IntegerType},
-	returnType: cesql.StringType,
+	name:      "RIGHT",
+	fixedArgs: []cesql.Type{cesql.StringType, cesql.IntegerType},
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		str := i[0].(string)
 		y := int(i[1].(int32))
@@ -118,7 +109,7 @@ var RightFunction function = function{
 		}
 
 		if y < 0 {
-			return str, sqlerrors.NewFunctionEvaluationError(fmt.Errorf("RIGHT y argument is < 0: %d", y))
+			return nil, fmt.Errorf("RIGHT y argument is < 0: %d", y)
 		}
 
 		return str[len(str)-y:], nil
@@ -126,9 +117,8 @@ var RightFunction function = function{
 }
 
 var SubstringFunction function = function{
-	name:       "SUBSTRING",
-	fixedArgs:  []cesql.Type{cesql.StringType, cesql.IntegerType},
-	returnType: cesql.StringType,
+	name:      "SUBSTRING",
+	fixedArgs: []cesql.Type{cesql.StringType, cesql.IntegerType},
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		str := i[0].(string)
 		pos := int(i[1].(int32))
@@ -138,7 +128,7 @@ var SubstringFunction function = function{
 		}
 
 		if pos < -len(str) || pos > len(str) {
-			return "", sqlerrors.NewFunctionEvaluationError(fmt.Errorf("SUBSTRING invalid pos argument: %d", pos))
+			return "", fmt.Errorf("SUBSTRING invalid pos argument: %d", pos)
 		}
 
 		var beginning int
@@ -153,9 +143,8 @@ var SubstringFunction function = function{
 }
 
 var SubstringWithLengthFunction function = function{
-	name:       "SUBSTRING",
-	fixedArgs:  []cesql.Type{cesql.StringType, cesql.IntegerType, cesql.IntegerType},
-	returnType: cesql.StringType,
+	name:      "SUBSTRING",
+	fixedArgs: []cesql.Type{cesql.StringType, cesql.IntegerType, cesql.IntegerType},
 	fn: func(event cloudevents.Event, i []interface{}) (interface{}, error) {
 		str := i[0].(string)
 		pos := int(i[1].(int32))
@@ -166,7 +155,7 @@ var SubstringWithLengthFunction function = function{
 		}
 
 		if pos < -len(str) || pos > len(str) {
-			return "", sqlerrors.NewFunctionEvaluationError(fmt.Errorf("SUBSTRING invalid pos argument: %d", pos))
+			return "", fmt.Errorf("SUBSTRING invalid pos argument: %d", pos)
 		}
 
 		var beginning int

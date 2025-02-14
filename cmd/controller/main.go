@@ -35,6 +35,8 @@ import (
 	"knative.dev/eventing/pkg/reconciler/channel"
 	"knative.dev/eventing/pkg/reconciler/containersource"
 	"knative.dev/eventing/pkg/reconciler/eventtype"
+	integrationsink "knative.dev/eventing/pkg/reconciler/integration/sink"
+	integrationsource "knative.dev/eventing/pkg/reconciler/integration/source"
 	"knative.dev/eventing/pkg/reconciler/parallel"
 	"knative.dev/eventing/pkg/reconciler/pingsource"
 	"knative.dev/eventing/pkg/reconciler/sequence"
@@ -70,11 +72,14 @@ func main() {
 		apiserversource.NewController,
 		pingsource.NewController,
 		containersource.NewController,
+		integrationsource.NewController,
+
 		// Sources CRD
 		sourcecrd.NewController,
 
 		// Sinks
 		jobsink.NewController,
+		integrationsink.NewController,
 
 		// Sugar
 		sugarnamespace.NewController,

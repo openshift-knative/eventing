@@ -1,5 +1,5 @@
 /*
-Copyright 2023 The Knative Authors
+Copyright 2024 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,19 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package reconciler
+package v1alpha1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"context"
+	"testing"
 )
 
-// FilterWithNamespace makes it simple to create FilterFunc's for use with
-// cache.FilteringResourceEventHandler that filter based on a name.
-func FilterWithNamespace(namespace string) func(obj interface{}) bool {
-	return func(obj interface{}) bool {
-		if object, ok := obj.(metav1.Object); ok {
-			return namespace == object.GetNamespace()
-		}
-		return false
+func TestIntegrationSinkConversionBadType(t *testing.T) {
+	good, bad := &IntegrationSink{}, &testObject{}
+
+	if err := good.ConvertTo(context.Background(), bad); err == nil {
+		t.Errorf("ConvertTo() = %#v, wanted error", bad)
+	}
+
+	if err := good.ConvertFrom(context.Background(), bad); err == nil {
+		t.Errorf("ConvertFrom() = %#v, wanted error", good)
 	}
 }

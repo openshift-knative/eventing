@@ -3,7 +3,7 @@ module knative.dev/eventing
 go 1.22.0
 
 require (
-	github.com/ahmetb/gen-crd-api-reference-docs v0.3.1-0.20210420163308-c1402a70e2f1
+	github.com/ahmetb/gen-crd-api-reference-docs v0.3.1-0.20250210181511-a4e4190827ba
 	github.com/cloudevents/conformance v0.2.0
 	github.com/cloudevents/sdk-go/observability/opencensus/v2 v2.15.2
 	github.com/cloudevents/sdk-go/protocol/mqtt_paho/v2 v2.0.0-20240508060731-1ed9471c98bd
@@ -115,8 +115,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/code-generator v0.30.3 // indirect
 	k8s.io/gengo v0.0.0-20240404160639-a0386bf69313 // indirect
-	k8s.io/gengo/v2 v2.0.0-20240228010128-51d4e06bde70 // indirect
-	k8s.io/klog v1.0.0 // indirect
+	k8s.io/gengo/v2 v2.0.0-20240404160639-a0386bf69313 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240808142205-8e686545bdb8 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect

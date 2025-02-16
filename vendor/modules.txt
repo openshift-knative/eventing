@@ -1072,7 +1072,7 @@ k8s.io/utils/trace
 # knative.dev/hack v0.0.0-20241010131451-05b2fb30cb4d
 ## explicit; go 1.21
 knative.dev/hack
-# knative.dev/hack/schema v0.0.0-20241010131451-05b2fb30cb4d
+# knative.dev/hack/schema v0.0.0-20250128013659-5f7f0f50e9de
 ## explicit; go 1.21
 knative.dev/hack/schema/commands
 knative.dev/hack/schema/docs

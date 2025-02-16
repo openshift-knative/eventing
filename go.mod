@@ -6,11 +6,11 @@ require (
 	github.com/ahmetb/gen-crd-api-reference-docs v0.3.1-0.20210420163308-c1402a70e2f1
 	github.com/cloudevents/conformance v0.2.0
 	github.com/cloudevents/sdk-go/observability/opencensus/v2 v2.15.2
-	github.com/cloudevents/sdk-go/protocol/mqtt_paho/v2 v2.0.0-20240508060731-1ed9471c98bd
+	github.com/cloudevents/sdk-go/protocol/mqtt_paho/v2 v2.0.0-20250214143010-93e1a8d64cd6
 	github.com/cloudevents/sdk-go/sql/v2 v2.0.0-20240712172937-3ce6b2f1f011
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.9.0
-	github.com/eclipse/paho.golang v0.12.0
+	github.com/eclipse/paho.golang v0.21.0
 	github.com/go-jose/go-jose/v3 v3.0.3
 	github.com/google/go-cmp v0.6.0
 	github.com/google/gofuzz v1.2.0
@@ -27,7 +27,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rickb777/date v1.13.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/wavesoftware/go-ensure v1.0.0
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/otel v1.31.0

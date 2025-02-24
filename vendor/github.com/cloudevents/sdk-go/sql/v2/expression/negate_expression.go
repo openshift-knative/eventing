@@ -16,12 +16,12 @@ type negateExpression baseUnaryExpression
 func (l negateExpression) Evaluate(event cloudevents.Event) (interface{}, error) {
 	val, err := l.child.Evaluate(event)
 	if err != nil {
-		return int32(0), err
+		return nil, err
 	}
 
 	val, err = utils.Cast(val, cesql.IntegerType)
 	if err != nil {
-		return int32(0), err
+		return nil, err
 	}
 
 	return -(val.(int32)), nil

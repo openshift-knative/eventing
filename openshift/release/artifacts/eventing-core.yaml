@@ -684,6 +684,32 @@ rules:
       - "delete"
       - "patch"
       - "watch"
+
+  - apiGroups:
+      - "cert-manager.io"
+    resources:
+      - "certificates"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "update"
+      - "delete"
+      - "patch"
+      - "watch"
+
+  - apiGroups:
+      - "acme.cert-manager.io"
+    resources:
+      - "challenges"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "update"
+      - "delete"
+      - "patch"
+      - "watch"
 ---
 # Copyright 2024 The Knative Authors
 #
@@ -7090,6 +7116,54 @@ spec:
               fieldRef:
                 fieldPath: metadata.name
 
+
+          - name: INTEGRATION_SOURCE_TIMER_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: timer-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SOURCE_AWS_S3_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-s3-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SOURCE_AWS_SQS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-sqs-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SOURCE_AWS_DDB_STREAMS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-ddb-streams-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_LOG_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: log-sink
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_AWS_S3_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-s3-sink
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_AWS_SQS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-sqs-sink
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_AWS_SNS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-sns-sink
+                name: eventing-integrations-images
 
 ##         Adapter settings
 #          - name: K_LOGGING_CONFIG

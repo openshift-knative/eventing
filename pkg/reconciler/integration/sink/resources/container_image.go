@@ -17,24 +17,21 @@ limitations under the License.
 package resources
 
 import (
+	"os"
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	commonv1a1 "knative.dev/eventing/pkg/apis/common/integration/v1alpha1"
+	"knative.dev/eventing/pkg/apis/feature"
 	"knative.dev/eventing/pkg/apis/sinks/v1alpha1"
 	"knative.dev/eventing/pkg/reconciler/integration"
 	"knative.dev/pkg/kmeta"
 )
 
-var sinkImageMap = map[string]string{
-	"log":     "gcr.io/knative-nightly/log-sink:latest",
-	"aws-s3":  "gcr.io/knative-nightly/aws-s3-sink:latest",
-	"aws-sqs": "gcr.io/knative-nightly/aws-sqs-sink:latest",
-	"aws-sns": "gcr.io/knative-nightly/aws-sns-sink:latest",
-}
-
-func MakeDeploymentSpec(sink *v1alpha1.IntegrationSink) *appsv1.Deployment {
+func MakeDeploymentSpec(sink *v1alpha1.IntegrationSink, featureFlags feature.Flags) *appsv1.Deployment {
+	//t := true
 
 	deploy := &appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{
@@ -167,15 +164,16 @@ func makeEnv(sink *v1alpha1.IntegrationSink) []corev1.EnvVar {
 }
 
 func selectImage(sink *v1alpha1.IntegrationSink) string {
+	// Injected in ./config/core/deployments/controller.yaml
 	switch {
 	case sink.Spec.Log != nil:
-		return sinkImageMap["log"]
+		return os.Getenv("INTEGRATION_SINK_LOG_IMAGE")
 	case sink.Spec.Aws != nil && sink.Spec.Aws.S3 != nil:
-		return sinkImageMap["aws-s3"]
+		return os.Getenv("INTEGRATION_SINK_AWS_S3_IMAGE")
 	case sink.Spec.Aws != nil && sink.Spec.Aws.SQS != nil:
-		return sinkImageMap["aws-sqs"]
+		return os.Getenv("INTEGRATION_SINK_AWS_SQS_IMAGE")
 	case sink.Spec.Aws != nil && sink.Spec.Aws.SNS != nil:
-		return sinkImageMap["aws-sns"]
+		return os.Getenv("INTEGRATION_SINK_AWS_SNS_IMAGE")
 	default:
 		return ""
 	}

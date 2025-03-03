@@ -12,7 +12,6 @@ type Function interface {
 	Arity() int
 	IsVariadic() bool
 	ArgType(index int) *Type
-	ReturnType() Type
 
 	Run(event cloudevents.Event, arguments []interface{}) (interface{}, error)
 }

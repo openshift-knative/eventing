@@ -19,6 +19,7 @@ package sink
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 
 	"knative.dev/eventing/pkg/certificates"
 
@@ -74,8 +75,9 @@ type Reconciler struct {
 
 	deploymentLister    appsv1listers.DeploymentLister
 	serviceLister       corev1listers.ServiceLister
-	cmCertificateLister certmanagerlisters.CertificateLister
-	certManagerClient   certmanagerclientset.Interface
+	cmCertificateLister *atomic.Pointer[certmanagerlisters.CertificateLister]
+
+	certManagerClient certmanagerclientset.Interface
 }
 
 // newReconciledNormal makes a new reconciler event with event type Normal, and
@@ -87,13 +89,13 @@ func newReconciledNormal(namespace, name string) reconciler.Event {
 func (r *Reconciler) ReconcileKind(ctx context.Context, sink *sinks.IntegrationSink) reconciler.Event {
 	featureFlags := feature.FromContext(ctx)
 
-	//if featureFlags.IsPermissiveTransportEncryption() || featureFlags.IsStrictTransportEncryption() {
-	//	_, err := r.reconcileCMCertificate(ctx, sink)
-	//	if err != nil {
-	//		logging.FromContext(ctx).Errorw("Error reconciling Certificate", zap.Error(err))
-	//		return err
-	//	}
-	//}
+	if featureFlags.IsPermissiveTransportEncryption() || featureFlags.IsStrictTransportEncryption() {
+		_, err := r.reconcileCMCertificate(ctx, sink)
+		if err != nil {
+			logging.FromContext(ctx).Errorw("Error reconciling Certificate", zap.Error(err))
+			return err
+		}
+	}
 
 	_, err := r.reconcileDeployment(ctx, sink, featureFlags)
 	if err != nil {
@@ -172,9 +174,17 @@ func (r *Reconciler) reconcileService(ctx context.Context, sink *sinks.Integrati
 
 func (r *Reconciler) reconcileCMCertificate(ctx context.Context, sink *sinks.IntegrationSink) (*cmv1.Certificate, error) {
 
-	expected := certificates.MakeCertificate(sink, sink.Name)
+	expected := certificates.MakeCertificate(sink, certificates.WithDNSNames(
+		network.GetServiceHostname(resources.DeploymentName(sink.GetName()), sink.GetNamespace()),
+		fmt.Sprintf("%s.%s.svc", resources.DeploymentName(sink.GetName()), sink.GetNamespace()),
+	))
 
-	cert, err := r.cmCertificateLister.Certificates(sink.Namespace).Get(expected.Name)
+	lister := r.cmCertificateLister.Load()
+	if lister == nil || *lister == nil {
+		return nil, fmt.Errorf("no cert-manager certificate lister created yet, this should rarely happen and recover")
+	}
+
+	cert, err := (*lister).Certificates(sink.Namespace).Get(expected.Name)
 	if apierrors.IsNotFound(err) {
 		cert, err := r.certManagerClient.CertmanagerV1().Certificates(sink.Namespace).Create(ctx, expected, metav1.CreateOptions{})
 		if err != nil {

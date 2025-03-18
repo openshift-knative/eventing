@@ -19,11 +19,11 @@ limitations under the License.
 package v1
 
 import (
-	http "net/http"
+	"net/http"
 
-	certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	v1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	rest "k8s.io/client-go/rest"
-	scheme "knative.dev/eventing/pkg/client/certmanager/clientset/versioned/scheme"
+	"knative.dev/eventing/pkg/client/certmanager/clientset/versioned/scheme"
 )
 
 type CertmanagerV1Interface interface {
@@ -100,10 +100,10 @@ func New(c rest.Interface) *CertmanagerV1Client {
 }
 
 func setConfigDefaults(config *rest.Config) error {
-	gv := certmanagerv1.SchemeGroupVersion
+	gv := v1.SchemeGroupVersion
 	config.GroupVersion = &gv
 	config.APIPath = "/apis"
-	config.NegotiatedSerializer = rest.CodecFactoryForGeneratedClient(scheme.Scheme, scheme.Codecs).WithoutConversion()
+	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 
 	if config.UserAgent == "" {
 		config.UserAgent = rest.DefaultKubernetesUserAgent()

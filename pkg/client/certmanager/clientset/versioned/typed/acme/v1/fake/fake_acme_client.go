@@ -29,11 +29,11 @@ type FakeAcmeV1 struct {
 }
 
 func (c *FakeAcmeV1) Challenges(namespace string) v1.ChallengeInterface {
-	return newFakeChallenges(c, namespace)
+	return &FakeChallenges{c, namespace}
 }
 
 func (c *FakeAcmeV1) Orders(namespace string) v1.OrderInterface {
-	return newFakeOrders(c, namespace)
+	return &FakeOrders{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

@@ -134,6 +134,23 @@ rules:
     resources:
       - "brokers/finalizers"
       - "triggers/finalizers"
+      - "eventtransforms/finalizers"
+    verbs:
+      - "update"
+
+  # EventTransform controller manipulates SinkBinding owner reference
+  - apiGroups:
+      - "sources.knative.dev"
+    resources:
+      - "sinkbindings/finalizers"
+    verbs:
+      - "update"
+
+  # EventTransform controller manipulates Service owner reference
+  - apiGroups:
+      - ""
+    resources:
+      - "services/finalizers"
     verbs:
       - "update"
 
@@ -238,6 +255,14 @@ rules:
       - "delete"
       - "patch"
       - "watch"
+
+  # EventTransform controller manipulates Certificate owner reference
+  - apiGroups:
+      - "cert-manager.io"
+    resources:
+      - "certificates/finalizers"
+    verbs:
+      - "update"
 
   - apiGroups:
       - "acme.cert-manager.io"

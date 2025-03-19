@@ -527,11 +527,13 @@ rules:
       - "list"
       - "watch"
 
-  # PingSource controller manipulates Deployment owner reference
+  # PingSource and EventTransform controllers manipulate Deployment and ConfigMap owner reference
   - apiGroups:
       - "apps"
+      - ""
     resources:
       - "deployments/finalizers"
+      - "configmaps/finalizers"
     verbs:
       - "update"
 

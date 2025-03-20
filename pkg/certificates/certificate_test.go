@@ -47,6 +47,10 @@ func TestNewCertificate(t *testing.T) {
 			OwnerReferences: []metav1.OwnerReference{
 				*kmeta.NewControllerRef(obj),
 			},
+			Labels: map[string]string{
+				"app.kubernetes.io/component": "knative-eventing",
+				"app.kubernetes.io/name":      obj.GetName(),
+			},
 		},
 		Spec: cmv1.CertificateSpec{
 			SecretName: CertificateName(obj.GetName()),
@@ -84,7 +88,7 @@ func TestNewCertificate(t *testing.T) {
 		},
 	}
 
-	got := MakeCertificate(obj, testName)
+	got := MakeCertificate(obj, WithDNSNames(want.Spec.DNSNames...))
 
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Error("unexpected condition (-want, +got) =", diff)

@@ -24,6 +24,12 @@ mkdir -p $artifacts_dir
 rm -rf config/channels/in-memory-channel/configmaps/observability.yaml
 rm -rf config/channels/in-memory-channel/configmaps/tracing.yaml
 rm -rf config/channels/in-memory-channel/100-namespace.yaml
+# Remove transformations and integrations ConfigMaps.
+# We don't use the ConfigMaps to inject the values, the operator will replace the value to the images directly.
+rm -rf config/core/configmaps/eventing-transformations-images.yaml
+rm -rf config/core/configmaps/eventing-integrations-images.yaml
+rm -rf config/400-config-eventing-transformations-images.yaml
+rm -rf config/400-config-eventing-integrations-images.yaml
 
 image_prefix="registry.ci.openshift.org/openshift/knative-${release}:knative-eventing-"
 tag=""

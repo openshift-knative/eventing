@@ -77,6 +77,11 @@ spec:
               fieldRef:
                 fieldPath: metadata.name
 
+          - name: EVENT_TRANSFORM_JSONATA_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: transform-jsonata
+                name: eventing-transformations-images
 
           - name: INTEGRATION_SOURCE_TIMER_IMAGE
             valueFrom:

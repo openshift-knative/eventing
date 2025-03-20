@@ -32,6 +32,10 @@ func (c *FakeEventingV1alpha1) EventPolicies(namespace string) v1alpha1.EventPol
 	return newFakeEventPolicies(c, namespace)
 }
 
+func (c *FakeEventingV1alpha1) EventTransforms(namespace string) v1alpha1.EventTransformInterface {
+	return newFakeEventTransforms(c, namespace)
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeEventingV1alpha1) RESTClient() rest.Interface {

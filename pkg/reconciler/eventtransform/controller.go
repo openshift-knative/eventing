@@ -19,23 +19,30 @@ package eventtransform
 import (
 	"context"
 
+	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/informers"
+	"knative.dev/eventing/pkg/certificates"
+	cmclient "knative.dev/eventing/pkg/client/certmanager/clientset/versioned"
+	"knative.dev/eventing/pkg/eventingtls"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	deploymentinformer "knative.dev/pkg/client/injection/kube/informers/apps/v1/deployment/filtered"
 	configmapinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/configmap/filtered"
+	secretinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/secret/filtered"
 	serviceinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/service/filtered"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
+	"knative.dev/pkg/injection"
 	"knative.dev/pkg/kmeta"
 	"knative.dev/pkg/logging"
 
 	"knative.dev/eventing/pkg/apis/feature"
 	eventingclient "knative.dev/eventing/pkg/client/injection/client"
-	eventtransformeryinformer "knative.dev/eventing/pkg/client/injection/informers/eventing/v1alpha1/eventtransform"
+	eventtransforminformer "knative.dev/eventing/pkg/client/injection/informers/eventing/v1alpha1/eventtransform"
 	sinkbindinginformer "knative.dev/eventing/pkg/client/injection/informers/sources/v1/sinkbinding/filtered"
 	"knative.dev/eventing/pkg/client/injection/reconciler/eventing/v1alpha1/eventtransform"
+	reconcilersource "knative.dev/eventing/pkg/reconciler/source"
 )
 
 const (
@@ -47,39 +54,59 @@ func NewController(
 	cmw configmap.Watcher,
 ) *controller.Impl {
 
-	eventTransformInformer := eventtransformeryinformer.Get(ctx)
+	eventTransformInformer := eventtransforminformer.Get(ctx)
 	jsonataConfigMapInformer := configmapinformer.Get(ctx, JsonataResourcesSelector)
 	jsonataDeploymentInformer := deploymentinformer.Get(ctx, JsonataResourcesSelector)
 	jsonataSinkBindingInformer := sinkbindinginformer.Get(ctx, JsonataResourcesSelector)
 	jsonataServiceInformer := serviceinformer.Get(ctx, JsonataResourcesSelector)
+	certificatesSecretInformer := secretinformer.Get(ctx, certificates.SecretLabelSelectorPair)
+	trustBundleConfigMapInformer := configmapinformer.Get(ctx, eventingtls.TrustBundleLabelSelector)
+	dynamicCertificatesInformer := certificates.NewDynamicCertificatesInformer()
 
 	// Create a custom informer as one in knative/pkg doesn't exist for endpoints.
-	factory := informers.NewSharedInformerFactoryWithOptions(
+	jsonataEndpointFactory := informers.NewSharedInformerFactoryWithOptions(
 		kubeclient.Get(ctx),
 		controller.DefaultResyncPeriod,
 		informers.WithTweakListOptions(func(options *metav1.ListOptions) {
 			options.LabelSelector = JsonataResourcesSelector
 		}),
 	)
-	jsonataEndpointInformer := factory.Core().V1().Endpoints()
+	jsonataEndpointInformer := jsonataEndpointFactory.Core().V1().Endpoints()
 
 	var globalResync func()
+	var enqueueControllerOf func(interface{})
 
 	featureStore := feature.NewStore(logging.FromContext(ctx).Named("feature-config-store"), func(name string, value interface{}) {
 		if globalResync != nil {
 			globalResync()
 		}
+
+		if features, ok := value.(feature.Flags); ok && enqueueControllerOf != nil {
+			// we assume that Cert-Manager is installed in the cluster if the feature flag is enabled
+			if err := dynamicCertificatesInformer.Reconcile(ctx, features, controller.HandleAll(enqueueControllerOf)); err != nil {
+				logging.FromContext(ctx).Errorw("Failed to start certificates dynamic factory", zap.Error(err))
+			}
+		}
 	})
 	featureStore.WatchConfigs(cmw)
 
+	configWatcher := reconcilersource.WatchConfigurations(ctx, "eventtransform", cmw,
+		reconcilersource.WithTracing,
+	)
+
 	r := &Reconciler{
-		k8s:                      kubeclient.Get(ctx),
-		client:                   eventingclient.Get(ctx),
-		jsonataConfigMapLister:   jsonataConfigMapInformer.Lister(),
-		jsonataDeploymentsLister: jsonataDeploymentInformer.Lister(),
-		jsonataServiceLister:     jsonataServiceInformer.Lister(),
-		jsonataEndpointLister:    jsonataEndpointInformer.Lister(),
-		jsonataSinkBindingLister: jsonataSinkBindingInformer.Lister(),
+		k8s:                        kubeclient.Get(ctx),
+		client:                     eventingclient.Get(ctx),
+		cmClient:                   cmclient.NewForConfigOrDie(injection.GetConfig(ctx)),
+		jsonataConfigMapLister:     jsonataConfigMapInformer.Lister(),
+		jsonataDeploymentsLister:   jsonataDeploymentInformer.Lister(),
+		jsonataServiceLister:       jsonataServiceInformer.Lister(),
+		jsonataEndpointLister:      jsonataEndpointInformer.Lister(),
+		jsonataSinkBindingLister:   jsonataSinkBindingInformer.Lister(),
+		cmCertificateLister:        dynamicCertificatesInformer.Lister(),
+		certificatesSecretLister:   certificatesSecretInformer.Lister(),
+		trustBundleConfigMapLister: trustBundleConfigMapInformer.Lister(),
+		configWatcher:              configWatcher,
 	}
 
 	impl := eventtransform.NewImpl(ctx, r, func(impl *controller.Impl) controller.Options {
@@ -87,6 +114,7 @@ func NewController(
 			ConfigStore: featureStore,
 		}
 	})
+	enqueueControllerOf = impl.EnqueueControllerOf
 
 	globalResync = func() {
 		impl.GlobalResync(eventTransformInformer.Informer())
@@ -101,8 +129,8 @@ func NewController(
 	jsonataSinkBindingInformer.Informer().AddEventHandler(controller.HandleAll(enqueueUsingNameLabel(impl)))
 
 	// Start the factory after creating all necessary informers.
-	factory.Start(ctx.Done())
-	factory.WaitForCacheSync(ctx.Done())
+	jsonataEndpointFactory.Start(ctx.Done())
+	jsonataEndpointFactory.WaitForCacheSync(ctx.Done())
 
 	return impl
 }

@@ -549,11 +549,13 @@ rules:
       - "list"
       - "watch"
 
-  # PingSource controller manipulates Deployment owner reference
+  # PingSource and EventTransform controllers manipulate Deployment and ConfigMap owner reference
   - apiGroups:
       - "apps"
+      - ""
     resources:
       - "deployments/finalizers"
+      - "configmaps/finalizers"
     verbs:
       - "update"
 
@@ -617,6 +619,23 @@ rules:
     resources:
       - "brokers/finalizers"
       - "triggers/finalizers"
+      - "eventtransforms/finalizers"
+    verbs:
+      - "update"
+
+  # EventTransform controller manipulates SinkBinding owner reference
+  - apiGroups:
+      - "sources.knative.dev"
+    resources:
+      - "sinkbindings/finalizers"
+    verbs:
+      - "update"
+
+  # EventTransform controller manipulates Service owner reference
+  - apiGroups:
+      - ""
+    resources:
+      - "services/finalizers"
     verbs:
       - "update"
 
@@ -700,6 +719,40 @@ rules:
       - "coordination.k8s.io"
     resources:
       - "leases"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "update"
+      - "delete"
+      - "patch"
+      - "watch"
+
+  - apiGroups:
+      - "cert-manager.io"
+    resources:
+      - "certificates"
+    verbs:
+      - "get"
+      - "list"
+      - "create"
+      - "update"
+      - "delete"
+      - "patch"
+      - "watch"
+
+  # EventTransform controller manipulates Certificate owner reference
+  - apiGroups:
+      - "cert-manager.io"
+    resources:
+      - "certificates/finalizers"
+    verbs:
+      - "update"
+
+  - apiGroups:
+      - "acme.cert-manager.io"
+    resources:
+      - "challenges"
     verbs:
       - "get"
       - "list"
@@ -3010,8 +3063,29 @@ spec:
                   type: object
                   properties:
                     expression:
-                      description: Expression is the JSONata expression.
+                      description: Expression is the JSONata expression (https://jsonata.org/).
                       type: string
+                reply:
+                  description: |
+                    Reply is the configuration on how to handle responses from Sink. It can only be set if Sink is set.
+                    Only one "type" can be used.
+                    The used type must match the top-level transformation, if you need to mix transformation types, use compositions and chain transformations together to achieve your desired outcome.
+                  type: object
+                  properties:
+                    jsonata:
+                      type: object
+                      properties:
+                        expression:
+                          description: Expression is the JSONata expression (https://jsonata.org/).
+                          type: string
+                    discard:
+                      description: |
+                        Discard discards responses from Sink and return empty response body.
+                        When set to false, it returns the exact sink response body.
+                        When set to true, Discard is mutually exclusive with EventTransformations in the reply
+                        section, it can either be discarded or transformed.
+                        Default: false.
+                      type: boolean
                 sink:
                   description: 'Sink is a reference to an object that will resolve to a uri to use as the sink.  If not present, the transformation will send back the transformed event as response, this is useful to leverage the built-in Broker reply feature to re-publish a transformed event back to the broker. '
                   type: object
@@ -7371,8 +7445,58 @@ spec:
                 fieldPath: metadata.name
 
           - name: EVENT_TRANSFORM_JSONATA_IMAGE
-            value: quay.io/pierdipi/jsonata-transform@sha256:6aafed0012b8a3c24a1cd72fc4521981ec7680cf64988c22ded0aafa2a431c93
+            valueFrom:
+              configMapKeyRef:
+                key: transform-jsonata
+                name: eventing-transformations-images
 
+          - name: INTEGRATION_SOURCE_TIMER_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: timer-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SOURCE_AWS_S3_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-s3-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SOURCE_AWS_SQS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-sqs-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SOURCE_AWS_DDB_STREAMS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-ddb-streams-source
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_LOG_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: log-sink
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_AWS_S3_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-s3-sink
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_AWS_SQS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-sqs-sink
+                name: eventing-integrations-images
+
+          - name: INTEGRATION_SINK_AWS_SNS_IMAGE
+            valueFrom:
+              configMapKeyRef:
+                key: aws-sns-sink
+                name: eventing-integrations-images
 
 ##         Adapter settings
 #          - name: K_LOGGING_CONFIG

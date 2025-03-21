@@ -19,17 +19,17 @@ type equalExpression struct {
 func (s equalExpression) Evaluate(event cloudevents.Event) (interface{}, error) {
 	leftVal, err := s.left.Evaluate(event)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	rightVal, err := s.right.Evaluate(event)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	leftVal, err = utils.Cast(leftVal, cesql.TypeFromVal(rightVal))
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	return (leftVal == rightVal) == s.equal, nil

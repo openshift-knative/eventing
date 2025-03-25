@@ -19,10 +19,10 @@ limitations under the License.
 package v1
 
 import (
-	labels "k8s.io/apimachinery/pkg/labels"
-	listers "k8s.io/client-go/listers"
-	cache "k8s.io/client-go/tools/cache"
-	sourcesv1 "knative.dev/eventing/pkg/apis/sources/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/tools/cache"
+	v1 "knative.dev/eventing/pkg/apis/sources/v1"
 )
 
 // ContainerSourceLister helps list ContainerSources.
@@ -30,7 +30,7 @@ import (
 type ContainerSourceLister interface {
 	// List lists all ContainerSources in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*sourcesv1.ContainerSource, err error)
+	List(selector labels.Selector) (ret []*v1.ContainerSource, err error)
 	// ContainerSources returns an object that can list and get ContainerSources.
 	ContainerSources(namespace string) ContainerSourceNamespaceLister
 	ContainerSourceListerExpansion
@@ -38,17 +38,25 @@ type ContainerSourceLister interface {
 
 // containerSourceLister implements the ContainerSourceLister interface.
 type containerSourceLister struct {
-	listers.ResourceIndexer[*sourcesv1.ContainerSource]
+	indexer cache.Indexer
 }
 
 // NewContainerSourceLister returns a new ContainerSourceLister.
 func NewContainerSourceLister(indexer cache.Indexer) ContainerSourceLister {
-	return &containerSourceLister{listers.New[*sourcesv1.ContainerSource](indexer, sourcesv1.Resource("containersource"))}
+	return &containerSourceLister{indexer: indexer}
+}
+
+// List lists all ContainerSources in the indexer.
+func (s *containerSourceLister) List(selector labels.Selector) (ret []*v1.ContainerSource, err error) {
+	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1.ContainerSource))
+	})
+	return ret, err
 }
 
 // ContainerSources returns an object that can list and get ContainerSources.
 func (s *containerSourceLister) ContainerSources(namespace string) ContainerSourceNamespaceLister {
-	return containerSourceNamespaceLister{listers.NewNamespaced[*sourcesv1.ContainerSource](s.ResourceIndexer, namespace)}
+	return containerSourceNamespaceLister{indexer: s.indexer, namespace: namespace}
 }
 
 // ContainerSourceNamespaceLister helps list and get ContainerSources.
@@ -56,15 +64,36 @@ func (s *containerSourceLister) ContainerSources(namespace string) ContainerSour
 type ContainerSourceNamespaceLister interface {
 	// List lists all ContainerSources in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*sourcesv1.ContainerSource, err error)
+	List(selector labels.Selector) (ret []*v1.ContainerSource, err error)
 	// Get retrieves the ContainerSource from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*sourcesv1.ContainerSource, error)
+	Get(name string) (*v1.ContainerSource, error)
 	ContainerSourceNamespaceListerExpansion
 }
 
 // containerSourceNamespaceLister implements the ContainerSourceNamespaceLister
 // interface.
 type containerSourceNamespaceLister struct {
-	listers.ResourceIndexer[*sourcesv1.ContainerSource]
+	indexer   cache.Indexer
+	namespace string
+}
+
+// List lists all ContainerSources in the indexer for a given namespace.
+func (s containerSourceNamespaceLister) List(selector labels.Selector) (ret []*v1.ContainerSource, err error) {
+	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1.ContainerSource))
+	})
+	return ret, err
+}
+
+// Get retrieves the ContainerSource from the indexer for a given namespace and name.
+func (s containerSourceNamespaceLister) Get(name string) (*v1.ContainerSource, error) {
+	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, errors.NewNotFound(v1.Resource("containersource"), name)
+	}
+	return obj.(*v1.ContainerSource), nil
 }

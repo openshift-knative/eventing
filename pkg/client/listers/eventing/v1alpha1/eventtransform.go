@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	labels "k8s.io/apimachinery/pkg/labels"
-	listers "k8s.io/client-go/listers"
-	cache "k8s.io/client-go/tools/cache"
-	eventingv1alpha1 "knative.dev/eventing/pkg/apis/eventing/v1alpha1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/tools/cache"
+	v1alpha1 "knative.dev/eventing/pkg/apis/eventing/v1alpha1"
 )
 
 // EventTransformLister helps list EventTransforms.
@@ -30,7 +30,7 @@ import (
 type EventTransformLister interface {
 	// List lists all EventTransforms in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*eventingv1alpha1.EventTransform, err error)
+	List(selector labels.Selector) (ret []*v1alpha1.EventTransform, err error)
 	// EventTransforms returns an object that can list and get EventTransforms.
 	EventTransforms(namespace string) EventTransformNamespaceLister
 	EventTransformListerExpansion
@@ -38,17 +38,25 @@ type EventTransformLister interface {
 
 // eventTransformLister implements the EventTransformLister interface.
 type eventTransformLister struct {
-	listers.ResourceIndexer[*eventingv1alpha1.EventTransform]
+	indexer cache.Indexer
 }
 
 // NewEventTransformLister returns a new EventTransformLister.
 func NewEventTransformLister(indexer cache.Indexer) EventTransformLister {
-	return &eventTransformLister{listers.New[*eventingv1alpha1.EventTransform](indexer, eventingv1alpha1.Resource("eventtransform"))}
+	return &eventTransformLister{indexer: indexer}
+}
+
+// List lists all EventTransforms in the indexer.
+func (s *eventTransformLister) List(selector labels.Selector) (ret []*v1alpha1.EventTransform, err error) {
+	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1alpha1.EventTransform))
+	})
+	return ret, err
 }
 
 // EventTransforms returns an object that can list and get EventTransforms.
 func (s *eventTransformLister) EventTransforms(namespace string) EventTransformNamespaceLister {
-	return eventTransformNamespaceLister{listers.NewNamespaced[*eventingv1alpha1.EventTransform](s.ResourceIndexer, namespace)}
+	return eventTransformNamespaceLister{indexer: s.indexer, namespace: namespace}
 }
 
 // EventTransformNamespaceLister helps list and get EventTransforms.
@@ -56,15 +64,36 @@ func (s *eventTransformLister) EventTransforms(namespace string) EventTransformN
 type EventTransformNamespaceLister interface {
 	// List lists all EventTransforms in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*eventingv1alpha1.EventTransform, err error)
+	List(selector labels.Selector) (ret []*v1alpha1.EventTransform, err error)
 	// Get retrieves the EventTransform from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*eventingv1alpha1.EventTransform, error)
+	Get(name string) (*v1alpha1.EventTransform, error)
 	EventTransformNamespaceListerExpansion
 }
 
 // eventTransformNamespaceLister implements the EventTransformNamespaceLister
 // interface.
 type eventTransformNamespaceLister struct {
-	listers.ResourceIndexer[*eventingv1alpha1.EventTransform]
+	indexer   cache.Indexer
+	namespace string
+}
+
+// List lists all EventTransforms in the indexer for a given namespace.
+func (s eventTransformNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.EventTransform, err error) {
+	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1alpha1.EventTransform))
+	})
+	return ret, err
+}
+
+// Get retrieves the EventTransform from the indexer for a given namespace and name.
+func (s eventTransformNamespaceLister) Get(name string) (*v1alpha1.EventTransform, error) {
+	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, errors.NewNotFound(v1alpha1.Resource("eventtransform"), name)
+	}
+	return obj.(*v1alpha1.EventTransform), nil
 }

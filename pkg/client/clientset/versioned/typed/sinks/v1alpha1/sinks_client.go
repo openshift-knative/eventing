@@ -19,11 +19,11 @@ limitations under the License.
 package v1alpha1
 
 import (
-	http "net/http"
+	"net/http"
 
 	rest "k8s.io/client-go/rest"
-	sinksv1alpha1 "knative.dev/eventing/pkg/apis/sinks/v1alpha1"
-	scheme "knative.dev/eventing/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "knative.dev/eventing/pkg/apis/sinks/v1alpha1"
+	"knative.dev/eventing/pkg/client/clientset/versioned/scheme"
 )
 
 type SinksV1alpha1Interface interface {
@@ -90,10 +90,10 @@ func New(c rest.Interface) *SinksV1alpha1Client {
 }
 
 func setConfigDefaults(config *rest.Config) error {
-	gv := sinksv1alpha1.SchemeGroupVersion
+	gv := v1alpha1.SchemeGroupVersion
 	config.GroupVersion = &gv
 	config.APIPath = "/apis"
-	config.NegotiatedSerializer = rest.CodecFactoryForGeneratedClient(scheme.Scheme, scheme.Codecs).WithoutConversion()
+	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 
 	if config.UserAgent == "" {
 		config.UserAgent = rest.DefaultKubernetesUserAgent()

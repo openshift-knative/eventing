@@ -29,19 +29,19 @@ type FakeSourcesV1 struct {
 }
 
 func (c *FakeSourcesV1) ApiServerSources(namespace string) v1.ApiServerSourceInterface {
-	return newFakeApiServerSources(c, namespace)
+	return &FakeApiServerSources{c, namespace}
 }
 
 func (c *FakeSourcesV1) ContainerSources(namespace string) v1.ContainerSourceInterface {
-	return newFakeContainerSources(c, namespace)
+	return &FakeContainerSources{c, namespace}
 }
 
 func (c *FakeSourcesV1) PingSources(namespace string) v1.PingSourceInterface {
-	return newFakePingSources(c, namespace)
+	return &FakePingSources{c, namespace}
 }
 
 func (c *FakeSourcesV1) SinkBindings(namespace string) v1.SinkBindingInterface {
-	return newFakeSinkBindings(c, namespace)
+	return &FakeSinkBindings{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

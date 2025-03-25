@@ -29,11 +29,11 @@ type FakeEventingV1alpha1 struct {
 }
 
 func (c *FakeEventingV1alpha1) EventPolicies(namespace string) v1alpha1.EventPolicyInterface {
-	return newFakeEventPolicies(c, namespace)
+	return &FakeEventPolicies{c, namespace}
 }
 
 func (c *FakeEventingV1alpha1) EventTransforms(namespace string) v1alpha1.EventTransformInterface {
-	return newFakeEventTransforms(c, namespace)
+	return &FakeEventTransforms{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

@@ -29,7 +29,7 @@ type FakeSourcesV1alpha1 struct {
 }
 
 func (c *FakeSourcesV1alpha1) IntegrationSources(namespace string) v1alpha1.IntegrationSourceInterface {
-	return newFakeIntegrationSources(c, namespace)
+	return &FakeIntegrationSources{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

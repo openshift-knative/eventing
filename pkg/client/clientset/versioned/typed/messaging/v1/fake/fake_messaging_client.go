@@ -29,15 +29,15 @@ type FakeMessagingV1 struct {
 }
 
 func (c *FakeMessagingV1) Channels(namespace string) v1.ChannelInterface {
-	return newFakeChannels(c, namespace)
+	return &FakeChannels{c, namespace}
 }
 
 func (c *FakeMessagingV1) InMemoryChannels(namespace string) v1.InMemoryChannelInterface {
-	return newFakeInMemoryChannels(c, namespace)
+	return &FakeInMemoryChannels{c, namespace}
 }
 
 func (c *FakeMessagingV1) Subscriptions(namespace string) v1.SubscriptionInterface {
-	return newFakeSubscriptions(c, namespace)
+	return &FakeSubscriptions{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

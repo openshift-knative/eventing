@@ -29,7 +29,7 @@ type FakeEventingV1beta1 struct {
 }
 
 func (c *FakeEventingV1beta1) EventTypes(namespace string) v1beta1.EventTypeInterface {
-	return newFakeEventTypes(c, namespace)
+	return &FakeEventTypes{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

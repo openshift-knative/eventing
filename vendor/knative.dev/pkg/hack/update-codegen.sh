@@ -20,9 +20,17 @@ set -o pipefail
 
 source $(dirname $0)/../vendor/knative.dev/hack/codegen-library.sh
 
+# If we run with -mod=vendor here, then generate-groups.sh looks for vendor files in the wrong place.
+export GOFLAGS=-mod=
+
 echo "=== Update Codegen for $MODULE_NAME"
 
-group "Knative Codegen"
+# generate the code with:
+# --output-base    because this script should also be able to run inside the vendor dir of
+#                  k8s.io/kubernetes. The output-base is needed for the generators to output into the vendor dir
+#                  instead of the $GOPATH directly. For normal projects this can be dropped.
+
+group "Kubernetes Codegen"
 
 # Knative Injection
 ${REPO_ROOT_DIR}/hack/generate-knative.sh "injection" \
@@ -35,6 +43,7 @@ ${REPO_ROOT_DIR}/hack/generate-knative.sh "injection" \
 K8S_TYPES=$(find ./vendor/k8s.io/api -type d -path '*/*/*/*/*/*' | cut -d'/' -f 5-6 | sort | sed 's@/@:@g' |
   grep -v "abac:" | \
   grep -v "admission:" | \
+  grep -v "admissionregistration:" \
   grep -v "componentconfig:" | \
   grep -v "imagepolicy:" | \
   grep -v "resource:" | \
@@ -60,8 +69,7 @@ VERSIONED_CLIENTSET_PKG="k8s.io/apiextensions-apiserver/pkg/client/clientset/cli
     --go-header-file ${REPO_ROOT_DIR}/hack/boilerplate/boilerplate.go.txt \
     --force-genreconciler-kinds "CustomResourceDefinition"
 
-
-group "Kubernetes Codegen"
+group "Knative Codegen"
 
 # Only deepcopy the Duck types, as they are not real resources.
 go run k8s.io/code-generator/cmd/deepcopy-gen \

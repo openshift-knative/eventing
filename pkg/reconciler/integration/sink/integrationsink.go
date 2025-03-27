@@ -63,6 +63,7 @@ const (
 	deploymentUpdated  = "DeploymentUpdated"
 	serviceCreated     = "ServiceCreated"
 	certificateCreated = "CertificateCreated"
+	certificateUpdated = "CertificateUpdated"
 	serviceUpdated     = "ServiceUpdated"
 )
 
@@ -87,31 +88,35 @@ func newReconciledNormal(namespace, name string) reconciler.Event {
 
 func (r *Reconciler) ReconcileKind(ctx context.Context, sink *sinks.IntegrationSink) reconciler.Event {
 	featureFlags := feature.FromContext(ctx)
+	logger := logging.FromContext(ctx)
 
-	if featureFlags.IsPermissiveTransportEncryption() || featureFlags.IsStrictTransportEncryption() {
-		_, err := r.reconcileCMCertificate(ctx, sink)
-		if err != nil {
-			logging.FromContext(ctx).Errorw("Error reconciling Certificate", zap.Error(err))
-			return err
-		}
+	logger.Debugw("Reconciling IntegrationSink Certificate")
+	_, err := r.reconcileIntegrationSinkCertificate(ctx, sink)
+	if err != nil {
+		logging.FromContext(ctx).Errorw("Error reconciling Certificate", zap.Error(err))
+		return err
 	}
 
-	_, err := r.reconcileDeployment(ctx, sink, featureFlags)
+	logger.Debugw("Reconciling IntegrationSink Deployment")
+	_, err = r.reconcileDeployment(ctx, sink, featureFlags)
 	if err != nil {
 		logging.FromContext(ctx).Errorw("Error reconciling Pod", zap.Error(err))
 		return err
 	}
 
+	logger.Debugw("Reconciling IntegrationSink Service")
 	_, err = r.reconcileService(ctx, sink)
 	if err != nil {
 		logging.FromContext(ctx).Errorw("Error reconciling Service", zap.Error(err))
 		return err
 	}
 
+	logger.Debugw("Reconciling IntegrationSink address")
 	if err := r.reconcileAddress(ctx, sink); err != nil {
 		return fmt.Errorf("failed to reconcile address: %w", err)
 	}
 
+	logger.Debugw("Updating IntegrationSink status with EventPolicies")
 	err = auth.UpdateStatusWithEventPolicies(featureFlags, &sink.Status.AppliedEventPoliciesStatus, &sink.Status, r.eventPolicyLister, sinks.SchemeGroupVersion.WithKind("IntegrationSink"), sink.ObjectMeta)
 	if err != nil {
 		return fmt.Errorf("could not update IntegrationSink status with EventPolicies: %v", err)
@@ -171,34 +176,78 @@ func (r *Reconciler) reconcileService(ctx context.Context, sink *sinks.Integrati
 	return svc, nil
 }
 
-func (r *Reconciler) reconcileCMCertificate(ctx context.Context, sink *sinks.IntegrationSink) (*cmv1.Certificate, error) {
+func (r *Reconciler) reconcileIntegrationSinkCertificate(ctx context.Context, sink *sinks.IntegrationSink) (*cmv1.Certificate, error) {
+	if f := feature.FromContext(ctx); !f.IsStrictTransportEncryption() && !f.IsPermissiveTransportEncryption() {
+		return nil, r.deleteIntegrationSinkCertificate(ctx, sink)
+	}
 
-	expected := certificates.MakeCertificate(sink, certificates.WithDNSNames(
-		network.GetServiceHostname(resources.DeploymentName(sink.GetName()), sink.GetNamespace()),
-		fmt.Sprintf("%s.%s.svc", resources.DeploymentName(sink.GetName()), sink.GetNamespace()),
-	))
+	expected := integrationSinkCertificate(sink)
 
-	lister := r.cmCertificateLister.Load()
-	if lister == nil || *lister == nil {
+	cmCertificateLister := r.cmCertificateLister.Load()
+	if cmCertificateLister == nil || *cmCertificateLister == nil {
 		return nil, fmt.Errorf("no cert-manager certificate lister created yet, this should rarely happen and recover")
 	}
 
-	cert, err := (*lister).Certificates(sink.Namespace).Get(expected.Name)
+	curr, err := (*cmCertificateLister).Certificates(expected.GetNamespace()).Get(expected.GetName())
 	if apierrors.IsNotFound(err) {
-		cert, err := r.certManagerClient.CertmanagerV1().Certificates(sink.Namespace).Create(ctx, expected, metav1.CreateOptions{})
+		created, err := r.createCertificate(ctx, sink, expected)
 		if err != nil {
-			return nil, fmt.Errorf("creating new Certificate: %v", err)
+			return nil, err
 		}
-		controller.GetEventRecorder(ctx).Eventf(sink, corev1.EventTypeNormal, certificateCreated, "Certificate created %q", cert.Name)
-	} else if err != nil {
-		return nil, fmt.Errorf("getting Certificate: %v", err)
-	} else if !metav1.IsControlledBy(cert, sink) {
-		return nil, fmt.Errorf("Certificate %q is not owned by IntegrationSink %q", cert.Name, sink.Name)
-	} else {
-		logging.FromContext(ctx).Debugw("Reusing existing Certificate", zap.Any("Certificate", cert))
+		if !sink.Status.PropagateCertificateStatus(created.Status) {
+			// Wait for Certificate to become ready before continuing.
+			return nil, controller.NewSkipKey("")
+		}
+		return created, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get certificate %s/%s: %w", expected.GetNamespace(), expected.GetName(), err)
 	}
 
-	return cert, nil
+	if equality.Semantic.DeepDerivative(expected.Spec, curr.Spec) &&
+		equality.Semantic.DeepDerivative(expected.Labels, curr.Labels) &&
+		equality.Semantic.DeepDerivative(expected.Annotations, curr.Annotations) {
+		if !sink.Status.PropagateCertificateStatus(curr.Status) {
+			// Wait for Certificate to become ready before continuing.
+			return nil, controller.NewSkipKey("")
+		}
+		return curr, nil
+	}
+	expected.ResourceVersion = curr.ResourceVersion
+	updated, err := r.updateCertificate(ctx, sink, expected)
+	if err != nil {
+		return nil, err
+	}
+	if !sink.Status.PropagateCertificateStatus(updated.Status) {
+		// Wait for Certificate to become ready before continuing.
+		return nil, controller.NewSkipKey("")
+	}
+	return updated, nil
+}
+
+func (r *Reconciler) deleteIntegrationSinkCertificate(ctx context.Context, sink *sinks.IntegrationSink) error {
+	certificate := integrationSinkCertificate(sink)
+
+	cmCertificateLister := r.cmCertificateLister.Load()
+	if cmCertificateLister != nil && *cmCertificateLister != nil {
+		_, err := (*cmCertificateLister).Certificates(certificate.GetNamespace()).Get(certificate.GetName())
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("failed to get certificate %s/%s: %w", certificate.GetNamespace(), certificate.GetName(), err)
+		}
+	}
+
+	err := r.certManagerClient.CertmanagerV1().Certificates(certificate.GetNamespace()).Delete(ctx, certificate.GetName(), metav1.DeleteOptions{})
+	if apierrors.IsNotFound(err) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("failed to delete certificate %s/%s: %w", certificate.GetNamespace(), certificate.GetName(), err)
+	}
+	controller.GetEventRecorder(ctx).Event(sink, corev1.EventTypeNormal, "IntegrationSinkCertificateDeleted", certificate.GetName())
+	return nil
 }
 
 func (r *Reconciler) reconcileAddress(ctx context.Context, sink *sinks.IntegrationSink) error {
@@ -302,4 +351,31 @@ func (r *Reconciler) podSpecChanged(oldPodSpec corev1.PodSpec, newPodSpec corev1
 		}
 	}
 	return false
+}
+
+func integrationSinkCertificate(sink *sinks.IntegrationSink) *cmv1.Certificate {
+	return certificates.MakeCertificate(sink,
+		certificates.WithDNSNames(
+			network.GetServiceHostname(resources.DeploymentName(sink.Name), sink.Namespace),
+			fmt.Sprintf("%s.%s.svc", resources.DeploymentName(sink.Name), sink.Namespace),
+		),
+	)
+}
+
+func (r *Reconciler) createCertificate(ctx context.Context, sink *sinks.IntegrationSink, expected *cmv1.Certificate) (*cmv1.Certificate, error) {
+	created, err := r.certManagerClient.CertmanagerV1().Certificates(expected.GetNamespace()).Create(ctx, expected, metav1.CreateOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("creating new Certificate  %s/%s: %w", expected.GetNamespace(), expected.GetName(), err)
+	}
+	controller.GetEventRecorder(ctx).Eventf(sink, corev1.EventTypeNormal, certificateCreated, "Certificate created %q", expected.GetName())
+	return created, nil
+}
+
+func (r *Reconciler) updateCertificate(ctx context.Context, sink *sinks.IntegrationSink, expected *cmv1.Certificate) (*cmv1.Certificate, error) {
+	updated, err := r.certManagerClient.CertmanagerV1().Certificates(expected.GetNamespace()).Update(ctx, expected, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to update certificate %s/%s: %w", expected.GetNamespace(), expected.GetName(), err)
+	}
+	controller.GetEventRecorder(ctx).Event(sink, corev1.EventTypeNormal, certificateUpdated, expected.GetName())
+	return updated, nil
 }

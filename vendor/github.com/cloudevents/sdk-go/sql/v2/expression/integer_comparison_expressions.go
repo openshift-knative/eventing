@@ -19,22 +19,22 @@ type integerComparisonExpression struct {
 func (s integerComparisonExpression) Evaluate(event cloudevents.Event) (interface{}, error) {
 	leftVal, err := s.left.Evaluate(event)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	rightVal, err := s.right.Evaluate(event)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	leftVal, err = utils.Cast(leftVal, cesql.IntegerType)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	rightVal, err = utils.Cast(rightVal, cesql.IntegerType)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	return s.fn(leftVal.(int32), rightVal.(int32)), nil

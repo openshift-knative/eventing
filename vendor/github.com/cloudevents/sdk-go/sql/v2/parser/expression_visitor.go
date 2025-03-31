@@ -6,7 +6,6 @@
 package parser
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -176,13 +175,9 @@ func (v *expressionVisitor) VisitLikeExpression(ctx *gen.LikeExpressionContext) 
 	if patternContext.DQUOTED_STRING_LITERAL() != nil {
 		// Parse double quoted string
 		pattern = dQuotedStringToString(patternContext.DQUOTED_STRING_LITERAL().GetText())
-	} else if patternContext.SQUOTED_STRING_LITERAL() != nil {
+	} else {
 		// Parse single quoted string
 		pattern = sQuotedStringToString(patternContext.SQUOTED_STRING_LITERAL().GetText())
-	} else {
-		// not a string, return an error
-		v.parsingErrors = append(v.parsingErrors, fmt.Errorf("failed to parse LIKE expression: the pattern was not a string literal"))
-		return noopExpression{}
 	}
 
 	likeExpression, err := expression.NewLikeExpression(v.Visit(ctx.Expression()).(cesql.Expression), pattern)

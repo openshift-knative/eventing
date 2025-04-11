@@ -126,7 +126,7 @@ func TestReceiver(t *testing.T) {
 			triggers: []*eventingv1.Trigger{
 				makeTrigger(withoutSubscriberURI()),
 			},
-			expectedStatus:     http.StatusBadRequest,
+			expectedStatus:     http.StatusNotFound,
 			expectedEventCount: true,
 		},
 		"Trigger without a Filter": {

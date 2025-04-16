@@ -38,11 +38,11 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.35.0
 	golang.org/x/sync v0.11.0
-	k8s.io/api v0.30.10
-	k8s.io/apiextensions-apiserver v0.30.10
-	k8s.io/apimachinery v0.30.10
-	k8s.io/apiserver v0.30.10
-	k8s.io/client-go v0.30.10
+	k8s.io/api v0.30.11
+	k8s.io/apiextensions-apiserver v0.30.11
+	k8s.io/apimachinery v0.30.11
+	k8s.io/apiserver v0.30.11
+	k8s.io/client-go v0.30.11
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
 	knative.dev/hack v0.0.0-20241010131451-05b2fb30cb4d
 	knative.dev/hack/schema v0.0.0-20241010131451-05b2fb30cb4d
@@ -92,6 +92,7 @@ require (
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/prometheus/statsd_exporter v0.22.7 // indirect
 	github.com/rickb777/plural v1.2.1 // indirect
+	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -114,7 +115,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/code-generator v0.30.10 // indirect
+	k8s.io/code-generator v0.30.11 // indirect
 	k8s.io/gengo v0.0.0-20240404160639-a0386bf69313 // indirect
 	k8s.io/gengo/v2 v2.0.0-20240228010128-51d4e06bde70 // indirect
 	k8s.io/klog v1.0.0 // indirect

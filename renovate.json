@@ -1,11 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "enabledManagers": ["tekton"],
-  "commitMessagePrefix": "[{{branchName}}]",
+  "commitMessagePrefix": "[{{baseBranch}}]",
   "ignorePaths": [
     ".konflux-release/**",
     "third_party/**",
     "vendor/**",
     "**/images-rekt.yaml"
+  ],
+  "labels": [
+    "skip-review"
   ]
 }

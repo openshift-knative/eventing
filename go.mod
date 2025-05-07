@@ -12,7 +12,7 @@ require (
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.9.0
 	github.com/eclipse/paho.golang v0.12.0
-	github.com/go-jose/go-jose/v3 v3.0.3
+	github.com/go-jose/go-jose/v3 v3.0.4
 	github.com/google/go-cmp v0.7.0
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.6.0
@@ -38,11 +38,11 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.39.0
 	golang.org/x/sync v0.13.0
-	k8s.io/api v0.32.2
-	k8s.io/apiextensions-apiserver v0.32.1
-	k8s.io/apimachinery v0.32.2
-	k8s.io/apiserver v0.32.1
-	k8s.io/client-go v0.32.2
+	k8s.io/api v0.32.4
+	k8s.io/apiextensions-apiserver v0.32.4
+	k8s.io/apimachinery v0.32.4
+	k8s.io/apiserver v0.32.4
+	k8s.io/client-go v0.32.4
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 	knative.dev/hack v0.0.0-20250331013814-c577ed9f7775
 	knative.dev/hack/schema v0.0.0-20250331013814-c577ed9f7775
@@ -116,7 +116,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/code-generator v0.32.2 // indirect
+	k8s.io/code-generator v0.32.4 // indirect
 	k8s.io/gengo v0.0.0-20240404160639-a0386bf69313 // indirect
 	k8s.io/gengo/v2 v2.0.0-20240911193312-2b36238f13e9 // indirect
 	k8s.io/klog v1.0.0 // indirect

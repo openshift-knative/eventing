@@ -7,8 +7,5 @@
     "third_party/**",
     "vendor/**",
     "**/images-rekt.yaml"
-  ],
-  "labels": [
-    "skip-review"
   ]
 }

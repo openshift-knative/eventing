@@ -12,13 +12,13 @@ require (
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.9.0
 	github.com/eclipse/paho.golang v0.12.0
-	github.com/go-jose/go-jose/v3 v3.0.3
+	github.com/go-jose/go-jose/v3 v3.0.4
 	github.com/google/go-cmp v0.6.0
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-cleanhttp v0.5.2
-	github.com/hashicorp/go-retryablehttp v0.7.7
+	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/hashicorp/golang-lru v1.0.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/go-homedir v1.1.0
@@ -38,11 +38,11 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.34.0
 	golang.org/x/sync v0.10.0
-	k8s.io/api v0.31.7
-	k8s.io/apiextensions-apiserver v0.31.7
-	k8s.io/apimachinery v0.31.7
-	k8s.io/apiserver v0.31.7
-	k8s.io/client-go v0.31.7
+	k8s.io/api v0.31.10
+	k8s.io/apiextensions-apiserver v0.31.10
+	k8s.io/apimachinery v0.31.10
+	k8s.io/apiserver v0.31.10
+	k8s.io/client-go v0.31.10
 	k8s.io/utils v0.0.0-20240921022957-49e7df575cb6
 	knative.dev/hack v0.0.0-20250116150306-c142b4835bc5
 	knative.dev/hack/schema v0.0.0-20250116150306-c142b4835bc5
@@ -117,7 +117,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/code-generator v0.31.7 // indirect
+	k8s.io/code-generator v0.31.10 // indirect
 	k8s.io/gengo v0.0.0-20240404160639-a0386bf69313 // indirect
 	k8s.io/gengo/v2 v2.0.0-20240826214909-a7b603a56eb7 // indirect
 	k8s.io/klog v1.0.0 // indirect

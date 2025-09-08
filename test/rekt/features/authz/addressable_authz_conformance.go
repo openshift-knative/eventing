@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"time"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	eventingv1 "knative.dev/eventing/pkg/apis/eventing/v1"
 	"knative.dev/eventing/test/rekt/resources/eventpolicy"
 	"knative.dev/eventing/test/rekt/resources/pingsource"
@@ -95,7 +96,7 @@ func addressableAllowsAuthorizedRequest(gvr schema.GroupVersionResource, kind, n
 	f.Requirement("install source", eventshub.Install(
 		source,
 		eventshub.StartSenderToResourceTLS(gvr, name, nil),
-		eventshub.InputEvent(event),
+		eventshub.InputEventWithEncoding(event, cloudevents.EncodingStructured),
 		eventshub.OIDCSubject(sourceSubject),
 	))
 
@@ -132,7 +133,7 @@ func addressableRejectsUnauthorizedRequest(gvr schema.GroupVersionResource, kind
 	f.Requirement("install source", eventshub.Install(
 		source,
 		eventshub.StartSenderToResourceTLS(gvr, name, nil),
-		eventshub.InputEvent(event),
+		eventshub.InputEventWithEncoding(event, cloudevents.EncodingStructured),
 		eventshub.InitialSenderDelay(10*time.Second),
 	))
 

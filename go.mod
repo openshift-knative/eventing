@@ -1,6 +1,6 @@
 module knative.dev/eventing
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/ahmetb/gen-crd-api-reference-docs v0.3.1-0.20210420163308-c1402a70e2f1
@@ -37,7 +37,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.34.0
-	golang.org/x/sync v0.10.0
+	golang.org/x/sync v0.17.0
 	k8s.io/api v0.31.11
 	k8s.io/apiextensions-apiserver v0.31.11
 	k8s.io/apimachinery v0.31.11

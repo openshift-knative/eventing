@@ -48,7 +48,7 @@ require (
 	knative.dev/hack/schema v0.0.0-20241010131451-05b2fb30cb4d
 	knative.dev/pkg v0.0.0-20241021183759-9b9d535af5ad
 	knative.dev/reconciler-test v0.0.0-20241015093232-09111f0f1364
-	sigs.k8s.io/yaml v1.4.0
+	sigs.k8s.io/yaml v1.6.0
 )
 
 require (
@@ -98,6 +98,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	golang.org/x/crypto v0.33.0 // indirect
 	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/oauth2 v0.22.0 // indirect

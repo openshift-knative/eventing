@@ -24,13 +24,14 @@ USER 65532
 
 LABEL \
       com.redhat.component="openshift-serverless-1-eventing-mtping-rhel8-container" \
-      name="openshift-serverless-1/eventing-mtping-rhel8" \
+      name="openshift-serverless-1/kn-eventing-mtping-rhel8" \
       version=$VERSION \
       summary="Red Hat OpenShift Serverless 1 Eventing Mtping" \
       maintainer="serverless-support@redhat.com" \
       description="Red Hat OpenShift Serverless 1 Eventing Mtping" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Mtping" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Mtping" \
-      io.openshift.tags="mtping"
+      io.openshift.tags="mtping" \
+      cpe="cpe:/a:redhat:openshift_serverless:1.36::el8"
 
 ENTRYPOINT ["/usr/bin/mtping"]

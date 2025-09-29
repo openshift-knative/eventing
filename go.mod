@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/ahmetb/gen-crd-api-reference-docs v0.3.1-0.20210420163308-c1402a70e2f1
-	github.com/cert-manager/cert-manager v1.16.3
+	github.com/cert-manager/cert-manager v1.18.2
 	github.com/cloudevents/conformance v0.4.1
 	github.com/cloudevents/sdk-go/observability/opentelemetry/v2 v2.16.1
 	github.com/cloudevents/sdk-go/protocol/mqtt_paho/v2 v2.0.0-20240508060731-1ed9471c98bd

@@ -97,7 +97,7 @@ function install_serverless(){
   local failed=0
   pushd $operator_dir || return $?
   export ON_CLUSTER_BUILDS=true
-  export DOCKER_REPO_OVERRIDE=image-registry.openshift-image-registry.svc:5000/openshift-marketplace
+  export DOCKER_REPO_OVERRIDE=image-registry.openshift-image-registry.svc:5000/openshift-serverless-builds
   OPENSHIFT_CI="true" TRACING_BACKEND="zipkin" ENABLE_TRACING="true" make generated-files images install-tracing install-eventing || failed=$?
   cat ${operator_dir}/olm-catalog/serverless-operator/manifests/serverless-operator.clusterserviceversion.yaml
   popd || return $?

@@ -31,7 +31,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/wavesoftware/go-ensure v1.0.0
 	go.opencensus.io v0.24.0
-	go.opentelemetry.io/otel v1.31.0
+	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/trace v1.38.0
 	go.uber.org/atomic v1.10.0
 	go.uber.org/multierr v1.11.0

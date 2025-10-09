@@ -1,5 +1,5 @@
 # DO NOT EDIT! Generated Dockerfile for cmd/apiserver_receive_adapter.
-ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.23-openshift-4.19
+ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.23-openshift-4.19
 ARG GO_RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal
 
 FROM $GO_BUILDER as builder
@@ -23,14 +23,15 @@ COPY LICENSE /licenses/
 USER 65532
 
 LABEL \
-      com.redhat.component="openshift-serverless-1-eventing-apiserver-receive-adapter-rhel8-container" \
-      name="openshift-serverless-1/eventing-apiserver-receive-adapter-rhel8" \
+      com.redhat.component="openshift-serverless-1-eventing-apiserver-receive-adapter-rhel9-container" \
+      name="openshift-serverless-1/eventing-apiserver-receive-adapter-rhel9" \
       version=$VERSION \
       summary="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
       maintainer="serverless-support@redhat.com" \
       description="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Apiserver Receive Adapter" \
-      io.openshift.tags="apiserver-receive-adapter"
+      io.openshift.tags="apiserver-receive-adapter" \
+      cpe="cpe:/a:redhat:openshift_serverless:1.37::el9"
 
 ENTRYPOINT ["/usr/bin/apiserver_receive_adapter"]

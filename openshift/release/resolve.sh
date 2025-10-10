@@ -33,6 +33,7 @@ function resolve_resources(){
         -e "s+knative.dev/eventing/cmd/ping+${image_prefix}ping${image_tag}+" \
         -e "s+knative.dev/eventing/cmd/mtping+${image_prefix}mtping${image_tag}+" \
         -e "s+knative.dev/eventing/cmd/apiserver_receive_adapter+${image_prefix}apiserver-receive-adapter${image_tag}+" \
+        -e "s+knative.dev/eventing/cmd/auth_proxy+${image_prefix}auth-proxy${image_tag}+" \
         -e "s+\(.* image: \)\(knative.dev\)\(.*/\)\(.*\)+\1${image_prefix}\4${image_tag}+g" \
         "$yaml" >> "$resolved_file_name"
   done

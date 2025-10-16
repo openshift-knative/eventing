@@ -31,6 +31,7 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing Broker Ingress" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Broker Ingress" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Broker Ingress" \
-      io.openshift.tags="broker-ingress"
+      io.openshift.tags="broker-ingress" \
+      cpe="cpe:/a:redhat:openshift_serverless:1.35::el8"
 
 ENTRYPOINT ["/usr/bin/ingress"]

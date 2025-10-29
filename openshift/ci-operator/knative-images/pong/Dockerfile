@@ -32,6 +32,8 @@ LABEL \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Pong" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Pong" \
       io.openshift.tags="pong" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
       cpe="cpe:/a:redhat:openshift_serverless:1.37::el9"
 
 ENTRYPOINT ["/usr/bin/pong"]

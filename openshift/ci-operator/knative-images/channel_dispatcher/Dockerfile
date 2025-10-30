@@ -23,8 +23,8 @@ COPY LICENSE /licenses/
 USER 65532
 
 LABEL \
-      com.redhat.component="openshift-serverless-1-eventing-in-memory-channel-dispatcher-rhel9-container" \
-      name="openshift-serverless-1/eventing-in-memory-channel-dispatcher-rhel9" \
+      com.redhat.component="openshift-serverless-1-kn-eventing-channel-dispatcher-rhel9-container" \
+      name="openshift-serverless-1/kn-eventing-channel-dispatcher-rhel9" \
       version=$VERSION \
       summary="Red Hat OpenShift Serverless 1 Eventing In Memory Channel Dispatcher" \
       maintainer="serverless-support@redhat.com" \
@@ -32,6 +32,8 @@ LABEL \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing In Memory Channel Dispatcher" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing In Memory Channel Dispatcher" \
       io.openshift.tags="in-memory-channel-dispatcher" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
       cpe="cpe:/a:redhat:openshift_serverless:1.37::el9"
 
 ENTRYPOINT ["/usr/bin/channel_dispatcher"]

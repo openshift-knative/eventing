@@ -23,14 +23,17 @@ COPY LICENSE /licenses/
 USER 65532
 
 LABEL \
-      com.redhat.component="openshift-serverless-1-eventing-apiserver-receive-adapter-rhel8-container" \
-      name="openshift-serverless-1/eventing-apiserver-receive-adapter-rhel8" \
+      com.redhat.component="openshift-serverless-1-kn-eventing-apiserver-receive-adapter-rhel8-container" \
+      name="openshift-serverless-1/kn-eventing-apiserver-receive-adapter-rhel8" \
       version=$VERSION \
       summary="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
       maintainer="serverless-support@redhat.com" \
       description="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Apiserver Receive Adapter" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Apiserver Receive Adapter" \
-      io.openshift.tags="apiserver-receive-adapter"
-
+      io.openshift.tags="apiserver-receive-adapter" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
+      cpe="cpe:/a:redhat:openshift_serverless:1.36::el8"
+      
 ENTRYPOINT ["/usr/bin/apiserver_receive_adapter"]

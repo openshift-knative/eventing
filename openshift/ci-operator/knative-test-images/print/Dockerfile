@@ -31,6 +31,9 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing Test Test Images Print" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Test Test Images Print" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Test Test Images Print" \
-      io.openshift.tags="test-test-images-print"
-
+      io.openshift.tags="test-test-images-print" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
+      cpe="cpe:/a:redhat:openshift_serverless:1.36::el8"
+      
 ENTRYPOINT ["/usr/bin/print"]

@@ -31,6 +31,9 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing Schema" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Schema" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Schema" \
-      io.openshift.tags="schema"
-
+      io.openshift.tags="schema" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
+      cpe="cpe:/a:redhat:openshift_serverless:1.36::el8"
+      
 ENTRYPOINT ["/usr/bin/schema"]

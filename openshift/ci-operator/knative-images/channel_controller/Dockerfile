@@ -23,8 +23,8 @@ COPY LICENSE /licenses/
 USER 65532
 
 LABEL \
-      com.redhat.component="openshift-serverless-1-kn-eventing-in-memory-channel-controller-rhel9-container" \
-      name="openshift-serverless-1/kn-eventing-in-memory-channel-controller-rhel9" \
+      com.redhat.component="openshift-serverless-1-kn-eventing-channel-controller-rhel9-container" \
+      name="openshift-serverless-1/kn-eventing-channel-controller-rhel9" \
       version=$VERSION \
       summary="Red Hat OpenShift Serverless 1 Eventing In Memory Channel Controller" \
       maintainer="serverless-support@redhat.com" \

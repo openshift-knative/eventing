@@ -34,6 +34,6 @@ LABEL \
       io.openshift.tags="test-test-images-recordevents" \
       vendor="Red Hat, Inc." \
       release=$VERSION \
-      cpe="cpe:/a:redhat:openshift_serverless:1.41::el9"
+      cpe="cpe:/a:redhat:openshift_serverless:1.38::el9"
 
 ENTRYPOINT ["/usr/bin/recordevents"]

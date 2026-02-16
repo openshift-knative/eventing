@@ -30,24 +30,12 @@ updates:
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - istio.io/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
         minor:
             update-types:
                 - minor
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
-                - istio.io/*
         patch:
             update-types:
                 - patch
@@ -96,24 +84,12 @@ updates:
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - istio.io/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
         minor:
             update-types:
                 - minor
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
-                - istio.io/*
         patch:
             update-types:
                 - patch
@@ -162,24 +138,12 @@ updates:
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - istio.io/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
         minor:
             update-types:
                 - minor
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
-                - istio.io/*
         patch:
             update-types:
                 - patch
@@ -228,24 +192,12 @@ updates:
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - istio.io/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
         minor:
             update-types:
                 - minor
             patterns:
                 - '*'
             applies-to: version-updates
-            exclude-patterns:
-                - knative.dev/*
-                - k8s.io/*
-                - github.com/openshift/*
-                - sigs.k8s.io/controller-runtime*
-                - istio.io/*
         patch:
             update-types:
                 - patch

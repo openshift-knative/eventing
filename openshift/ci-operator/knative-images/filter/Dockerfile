@@ -1,5 +1,5 @@
 # DO NOT EDIT! Generated Dockerfile for cmd/broker/filter.
-ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.22-openshift-4.17
+ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.24-openshift-4.17
 ARG GO_RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal
 
 FROM $GO_BUILDER as builder
@@ -23,14 +23,17 @@ COPY LICENSE /licenses/
 USER 65532
 
 LABEL \
-      com.redhat.component="openshift-serverless-1-eventing-broker-filter-rhel8-container" \
-      name="openshift-serverless-1/eventing-broker-filter-rhel8" \
+      com.redhat.component="openshift-serverless-1-kn-eventing-filter-rhel8-container" \
+      name="openshift-serverless-1/kn-eventing-filter-rhel8" \
       version=$VERSION \
       summary="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
       maintainer="serverless-support@redhat.com" \
       description="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Broker Filter" \
-      io.openshift.tags="broker-filter"
-
+      io.openshift.tags="broker-filter" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
+      cpe="cpe:/a:redhat:openshift_serverless:1.35::el8"
+      
 ENTRYPOINT ["/usr/bin/filter"]

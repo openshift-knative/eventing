@@ -1,5 +1,5 @@
 # DO NOT EDIT! Generated Dockerfile for test/test_images/event-sender.
-ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.22-openshift-4.17
+ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.23-openshift-4.17
 ARG GO_RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal
 
 FROM $GO_BUILDER as builder
@@ -31,6 +31,9 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing Test Test Images Event Sender" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Test Test Images Event Sender" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Test Test Images Event Sender" \
-      io.openshift.tags="test-test-images-event-sender"
-
+      io.openshift.tags="test-test-images-event-sender" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
+      cpe="cpe:/a:redhat:openshift_serverless:1.35::el8"
+      
 ENTRYPOINT ["/usr/bin/event-sender"]

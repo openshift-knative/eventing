@@ -1,5 +1,5 @@
 # DO NOT EDIT! Generated Dockerfile for cmd/heartbeats_receiver.
-ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.22-openshift-4.17
+ARG GO_BUILDER=registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.23-openshift-4.17
 ARG GO_RUNTIME=registry.access.redhat.com/ubi8/ubi-minimal
 
 FROM $GO_BUILDER as builder
@@ -31,6 +31,9 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing Heartbeats Receiver" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Heartbeats Receiver" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Heartbeats Receiver" \
-      io.openshift.tags="heartbeats-receiver"
-
+      io.openshift.tags="heartbeats-receiver" \
+      vendor="Red Hat, Inc." \
+      release=$VERSION \
+      cpe="cpe:/a:redhat:openshift_serverless:1.35::el8"
+      
 ENTRYPOINT ["/usr/bin/heartbeats_receiver"]

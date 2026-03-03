@@ -31,6 +31,7 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing Mqttsource" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Mqttsource" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Mqttsource" \
-      io.openshift.tags="mqttsource"
+      io.openshift.tags="mqttsource" \
+      cpe="cpe:/a:redhat:openshift_serverless:1.35::el8"
 
 ENTRYPOINT ["/usr/bin/mqttsource"]

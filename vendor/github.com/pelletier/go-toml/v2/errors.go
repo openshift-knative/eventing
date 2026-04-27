@@ -2,10 +2,11 @@ package toml
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 
-	"github.com/pelletier/go-toml/v2/internal/danger"
+	"github.com/pelletier/go-toml/v2/unstable"
 )
 
 // DecodeError represents an error encountered during the parsing or decoding
@@ -53,26 +54,19 @@ func (s *StrictMissingError) String() string {
 	return buf.String()
 }
 
-type Key []string
-
-// internal version of DecodeError that is used as the base to create a
-// DecodeError with full context.
-type decodeError struct {
-	highlight []byte
-	message   string
-	key       Key // optional
-}
-
-func (de *decodeError) Error() string {
-	return de.message
-}
-
-func newDecodeError(highlight []byte, format string, args ...interface{}) error {
-	return &decodeError{
-		highlight: highlight,
-		message:   fmt.Errorf(format, args...).Error(),
+// Unwrap returns wrapped decode errors
+//
+// Implements errors.Join() interface.
+func (s *StrictMissingError) Unwrap() []error {
+	errs := make([]error, len(s.Errors))
+	for i := range s.Errors {
+		errs[i] = &s.Errors[i]
 	}
+	return errs
 }
+
+// Key represents a TOML key as a sequence of key parts.
+type Key []string
 
 // Error returns the error message contained in the DecodeError.
 func (e *DecodeError) Error() string {
@@ -96,7 +90,7 @@ func (e *DecodeError) Key() Key {
 	return e.key
 }
 
-// decodeErrorFromHighlight creates a DecodeError referencing a highlighted
+// wrapDecodeError creates a DecodeError referencing a highlighted
 // range of bytes from document.
 //
 // highlight needs to be a sub-slice of document, or this function panics.
@@ -105,12 +99,12 @@ func (e *DecodeError) Key() Key {
 // highlight can be freely deallocated.
 //
 //nolint:funlen
-func wrapDecodeError(document []byte, de *decodeError) *DecodeError {
-	offset := danger.SubsliceOffset(document, de.highlight)
+func wrapDecodeError(document []byte, de *unstable.ParserError) *DecodeError {
+	offset := subsliceOffset(document, de.Highlight)
 
 	errMessage := de.Error()
 	errLine, errColumn := positionAtEnd(document[:offset])
-	before, after := linesOfContext(document, de.highlight, offset, 3)
+	before, after := linesOfContext(document, de.Highlight, offset, 3)
 
 	var buf strings.Builder
 
@@ -140,7 +134,7 @@ func wrapDecodeError(document []byte, de *decodeError) *DecodeError {
 		buf.Write(before[0])
 	}
 
-	buf.Write(de.highlight)
+	buf.Write(de.Highlight)
 
 	if len(after) > 0 {
 		buf.Write(after[0])
@@ -158,7 +152,7 @@ func wrapDecodeError(document []byte, de *decodeError) *DecodeError {
 		buf.WriteString(strings.Repeat(" ", len(before[0])))
 	}
 
-	buf.WriteString(strings.Repeat("~", len(de.highlight)))
+	buf.WriteString(strings.Repeat("~", len(de.Highlight)))
 
 	if len(errMessage) > 0 {
 		buf.WriteString(" ")
@@ -183,7 +177,7 @@ func wrapDecodeError(document []byte, de *decodeError) *DecodeError {
 		message: errMessage,
 		line:    errLine,
 		column:  errColumn,
-		key:     de.key,
+		key:     de.Key,
 		human:   buf.String(),
 	}
 }
@@ -266,5 +260,24 @@ func positionAtEnd(b []byte) (row int, column int) {
 		}
 	}
 
-	return
+	return row, column
+}
+
+// subsliceOffset returns the byte offset of subslice within data.
+// subslice must share the same backing array as data.
+func subsliceOffset(data []byte, subslice []byte) int {
+	if len(subslice) == 0 {
+		return 0
+	}
+
+	// Use reflect to get the data pointers of both slices.
+	// This is safe because we're only reading the pointer values for comparison.
+	dataPtr := reflect.ValueOf(data).Pointer()
+	subPtr := reflect.ValueOf(subslice).Pointer()
+
+	offset := int(subPtr - dataPtr)
+	if offset < 0 || offset > len(data) {
+		panic("subslice is not within data")
+	}
+	return offset
 }

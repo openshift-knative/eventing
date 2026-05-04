@@ -6,9 +6,18 @@ import (
 	"time"
 )
 
-var timeType = reflect.TypeOf(time.Time{})
-var textMarshalerType = reflect.TypeOf(new(encoding.TextMarshaler)).Elem()
-var textUnmarshalerType = reflect.TypeOf(new(encoding.TextUnmarshaler)).Elem()
-var mapStringInterfaceType = reflect.TypeOf(map[string]interface{}{})
-var sliceInterfaceType = reflect.TypeOf([]interface{}{})
-var stringType = reflect.TypeOf("")
+// isZeroer is used to check if a type has a custom IsZero method.
+// This allows custom types to define their own zero-value semantics.
+type isZeroer interface {
+	IsZero() bool
+}
+
+var (
+	timeType               = reflect.TypeOf((*time.Time)(nil)).Elem()
+	textMarshalerType      = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
+	textUnmarshalerType    = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
+	isZeroerType           = reflect.TypeOf((*isZeroer)(nil)).Elem()
+	mapStringInterfaceType = reflect.TypeOf(map[string]interface{}(nil))
+	sliceInterfaceType     = reflect.TypeOf([]interface{}(nil))
+	stringType             = reflect.TypeOf("")
+)

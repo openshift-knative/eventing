@@ -7,8 +7,7 @@ metadata:
   name: kn-eventing-apiserver-receive-adapter-117
 spec:
   componentName: kn-eventing-apiserver-receive-adapter-117
-  application: serverless-operator-137
-   
+  application: serverless-operator-137 
   source:
     git:
       url: https://github.com/openshift-knative/eventing.git

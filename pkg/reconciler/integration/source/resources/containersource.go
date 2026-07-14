@@ -52,6 +52,7 @@ func NewContainerSource(source *v1alpha1.IntegrationSource, oidc bool) *sourcesv
 							Env:             makeEnv(source, oidc),
 						},
 					},
+					ServiceAccountName: makeServiceAccountName(source),
 				},
 			},
 			SourceSpec: source.Spec.SourceSpec,
@@ -96,6 +97,11 @@ func makeEnv(source *v1alpha1.IntegrationSource, oidc bool) []corev1.EnvVar {
 				integration.MakeSecretEnvVar("CAMEL_KAMELET_AWS_S3_SOURCE_ACCESSKEY", commonv1a1.AwsAccessKey, secretName),
 				integration.MakeSecretEnvVar("CAMEL_KAMELET_AWS_S3_SOURCE_SECRETKEY", commonv1a1.AwsSecretKey, secretName),
 			}...)
+		} else {
+			envVars = append(envVars, corev1.EnvVar{
+				Name:  "CAMEL_KAMELET_AWS_S3_SOURCE_USE_DEFAULT_CREDENTIALS_PROVIDER",
+				Value: "true",
+			})
 		}
 		return envVars
 	}
@@ -108,6 +114,11 @@ func makeEnv(source *v1alpha1.IntegrationSource, oidc bool) []corev1.EnvVar {
 				integration.MakeSecretEnvVar("CAMEL_KAMELET_AWS_SQS_SOURCE_ACCESSKEY", commonv1a1.AwsAccessKey, secretName),
 				integration.MakeSecretEnvVar("CAMEL_KAMELET_AWS_SQS_SOURCE_SECRETKEY", commonv1a1.AwsSecretKey, secretName),
 			}...)
+		} else {
+			envVars = append(envVars, corev1.EnvVar{
+				Name:  "CAMEL_KAMELET_AWS_SQS_SOURCE_USE_DEFAULT_CREDENTIALS_PROVIDER",
+				Value: "true",
+			})
 		}
 		return envVars
 	}
@@ -120,12 +131,24 @@ func makeEnv(source *v1alpha1.IntegrationSource, oidc bool) []corev1.EnvVar {
 				integration.MakeSecretEnvVar("CAMEL_KAMELET_AWS_DDB_STREAMS_SOURCE_ACCESSKEY", commonv1a1.AwsAccessKey, secretName),
 				integration.MakeSecretEnvVar("CAMEL_KAMELET_AWS_DDB_STREAMS_SOURCE_SECRETKEY", commonv1a1.AwsSecretKey, secretName),
 			}...)
+		} else {
+			envVars = append(envVars, corev1.EnvVar{
+				Name:  "CAMEL_KAMELET_AWS_DDB_STREAMS_SOURCE_USE_DEFAULT_CREDENTIALS_PROVIDER",
+				Value: "true",
+			})
 		}
 		return envVars
 	}
 
 	// If no valid configuration is found, return empty envVars
 	return envVars
+}
+
+func makeServiceAccountName(source *v1alpha1.IntegrationSource) string {
+	if source.Spec.Aws != nil && source.Spec.Aws.Auth != nil && source.Spec.Aws.Auth.ServiceAccountName != "" {
+		return source.Spec.Aws.Auth.ServiceAccountName
+	}
+	return ""
 }
 
 func selectImage(source *v1alpha1.IntegrationSource) string {

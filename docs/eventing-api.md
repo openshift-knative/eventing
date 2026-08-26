@@ -484,6 +484,27 @@ For exponential policy, backoff delay is backoffDelay*2^<numberOfRetries>.</p>
 </tr>
 <tr>
 <td>
+<code>backoffMax</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>BackoffMax is the maximum delay between normal delivery attempts. It caps
+the delay calculated from BackoffDelay and BackoffPolicy, but does not cap
+delays requested by a Retry-After response header. The value must be
+greater than zero.</p>
+<p>Note: This API is EXPERIMENTAL and might be changed at any time. Cluster
+operators must enable the delivery-backoff-max feature before users can set
+this field.</p>
+<p>More information on Duration format:
+- <a href="https://www.iso.org/iso-8601-date-and-time-format.html">https://www.iso.org/iso-8601-date-and-time-format.html</a>
+- <a href="https://en.wikipedia.org/wiki/ISO_8601">https://en.wikipedia.org/wiki/ISO_8601</a></p>
+</td>
+</tr>
+<tr>
+<td>
 <code>retryAfterMax</code><br/>
 <em>
 string

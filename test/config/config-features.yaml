@@ -27,6 +27,11 @@ data:
   # For more details: https://github.com/knative/eventing/issues/5811
   delivery-retryafter: "disabled"
 
+  # ALPHA feature: The delivery-backoff-max flag allows DeliverySpec.backoffMax
+  # to cap the delay calculated from backoffDelay and backoffPolicy.
+  # For more details: https://github.com/knative/eventing/issues/9278
+  delivery-backoff-max: "disabled"
+
   # BETA feature: The delivery-timeout allows you to use the Timeout field in DeliverySpec.
   # For more details: https://github.com/knative/eventing/issues/5148
   delivery-timeout: "enabled"

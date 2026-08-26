@@ -23,5 +23,6 @@ metadata:
 data:
   kreference-group: "enabled"
   delivery-retryafter: "enabled"
+  delivery-backoff-max: "enabled"
   delivery-timeout: "enabled"
   eventtype-auto-create: "enabled"

@@ -2023,6 +2023,7 @@ func TestAllCases(t *testing.T) {
 			Ctx: feature.ToContext(context.TODO(), feature.Flags{
 				feature.DeliveryTimeout:    feature.Enabled,
 				feature.DeliveryRetryAfter: feature.Enabled,
+				feature.DeliveryBackoffMax: feature.Enabled,
 			}),
 			Objects: []runtime.Object{
 				NewSubscription("a-"+subscriptionName, testNS,
@@ -2040,6 +2041,7 @@ func TestAllCases(t *testing.T) {
 					WithInMemoryChannelReadySubscriber("a-"+subscriptionUID),
 					WithInMemoryChannelDelivery(&eventingduck.DeliverySpec{
 						Timeout:       pointer.String("PT1S"),
+						BackoffMax:    pointer.String("PT10S"),
 						RetryAfterMax: pointer.String("PT2S"),
 					}),
 					WithInMemoryChannelStatusDLS(dlcStatus),
@@ -2072,6 +2074,7 @@ func TestAllCases(t *testing.T) {
 						SubscriberURI: serviceURI,
 						Delivery: &eventingduck.DeliverySpec{
 							Timeout:       pointer.String("PT1S"),
+							BackoffMax:    pointer.String("PT10S"),
 							RetryAfterMax: pointer.String("PT2S"),
 						},
 						Name: pointer.String("a-" + subscriptionName),

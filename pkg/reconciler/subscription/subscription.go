@@ -566,6 +566,7 @@ func deliverySpec(sub *v1.Subscription, channel *eventingduckv1.Channelable) (de
 		if channel.Spec.Delivery.BackoffDelay != nil ||
 			channel.Spec.Delivery.Retry != nil ||
 			channel.Spec.Delivery.BackoffPolicy != nil ||
+			channel.Spec.Delivery.BackoffMax != nil ||
 			channel.Spec.Delivery.Timeout != nil ||
 			channel.Spec.Delivery.RetryAfterMax != nil {
 			if delivery == nil {
@@ -574,6 +575,7 @@ func deliverySpec(sub *v1.Subscription, channel *eventingduckv1.Channelable) (de
 			delivery.BackoffPolicy = channel.Spec.Delivery.BackoffPolicy
 			delivery.Retry = channel.Spec.Delivery.Retry
 			delivery.BackoffDelay = channel.Spec.Delivery.BackoffDelay
+			delivery.BackoffMax = channel.Spec.Delivery.BackoffMax
 			delivery.Timeout = channel.Spec.Delivery.Timeout
 			delivery.RetryAfterMax = channel.Spec.Delivery.RetryAfterMax
 		}
@@ -592,6 +594,7 @@ func deliverySpec(sub *v1.Subscription, channel *eventingduckv1.Channelable) (de
 		(sub.Spec.Delivery.BackoffDelay != nil ||
 			sub.Spec.Delivery.Retry != nil ||
 			sub.Spec.Delivery.BackoffPolicy != nil ||
+			sub.Spec.Delivery.BackoffMax != nil ||
 			sub.Spec.Delivery.Timeout != nil ||
 			sub.Spec.Delivery.RetryAfterMax != nil) {
 		if delivery == nil {
@@ -600,6 +603,7 @@ func deliverySpec(sub *v1.Subscription, channel *eventingduckv1.Channelable) (de
 		delivery.BackoffPolicy = sub.Spec.Delivery.BackoffPolicy
 		delivery.Retry = sub.Spec.Delivery.Retry
 		delivery.BackoffDelay = sub.Spec.Delivery.BackoffDelay
+		delivery.BackoffMax = sub.Spec.Delivery.BackoffMax
 		delivery.Timeout = sub.Spec.Delivery.Timeout
 		delivery.RetryAfterMax = sub.Spec.Delivery.RetryAfterMax
 	}

@@ -99,6 +99,18 @@ var (
 			BackoffPolicy: &linear,
 		},
 	}
+	subscriber1WithBackoffMax = eventingduckv1.SubscriberSpec{
+		UID:           subscriber1UID,
+		Generation:    subscriber1Generation,
+		SubscriberURI: apis.HTTP("call1"),
+		ReplyURI:      apis.HTTP("sink2"),
+		Delivery: &eventingduckv1.DeliverySpec{
+			Retry:         ptr.Int32(3),
+			BackoffPolicy: &linear,
+			BackoffDelay:  ptr.String("PT1S"),
+			BackoffMax:    ptr.String("PT10S"),
+		},
+	}
 
 	subscriber2 = eventingduckv1.SubscriberSpec{
 		UID:           subscriber2UID,
@@ -518,6 +530,47 @@ func TestReconciler_ReconcileKind(t *testing.T) {
 					},
 					RetryConfig: &kncloudevents.RetryConfig{RetryMax: 3, BackoffPolicy: &linear}},
 			},
+		},
+		"with one subscriber, with only backoff max changed": {
+			imc: NewInMemoryChannel(imcName, testNS,
+				WithInitInMemoryChannelConditions,
+				WithInMemoryChannelDeploymentReady(),
+				WithInMemoryChannelServiceReady(),
+				WithInMemoryChannelEndpointsReady(),
+				WithInMemoryChannelChannelServiceReady(),
+				WithInMemoryChannelSubscribers([]eventingduckv1.SubscriberSpec{subscriber1WithBackoffMax}),
+				WithInMemoryChannelAddress(channelServiceAddress),
+				WithInMemoryChannelDLSUnknown(),
+				WithInMemoryChannelEventPoliciesReady()),
+			subs: []fanout.Subscription{{
+				Subscriber: duckv1.Addressable{
+					URL: apis.HTTP("call1"),
+				},
+				Reply: &duckv1.Addressable{
+					URL: apis.HTTP("sink2"),
+				},
+				RetryConfig: &kncloudevents.RetryConfig{
+					RetryMax:      3,
+					BackoffPolicy: &linear,
+					BackoffDelay:  ptr.String("PT1S"),
+					BackoffMax:    ptr.String("PT2S"),
+				},
+			}},
+			wantSubs: []fanout.Subscription{{
+				Namespace: testNS,
+				Subscriber: duckv1.Addressable{
+					URL: apis.HTTP("call1"),
+				},
+				Reply: &duckv1.Addressable{
+					URL: apis.HTTP("sink2"),
+				},
+				RetryConfig: &kncloudevents.RetryConfig{
+					RetryMax:      3,
+					BackoffPolicy: &linear,
+					BackoffDelay:  ptr.String("PT1S"),
+					BackoffMax:    ptr.String("PT10S"),
+				},
+			}},
 		},
 	}
 	for n, tc := range testCases {

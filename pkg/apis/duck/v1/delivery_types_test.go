@@ -35,6 +35,9 @@ func TestDeliverySpecValidation(t *testing.T) {
 	deliveryRetryAfterEnabledCtx := feature.ToContext(context.TODO(), feature.Flags{
 		feature.DeliveryRetryAfter: feature.Enabled,
 	})
+	deliveryBackoffMaxEnabledCtx := feature.ToContext(context.TODO(), feature.Flags{
+		feature.DeliveryBackoffMax: feature.Enabled,
+	})
 
 	invalidString := "invalid time"
 	bop := BackoffPolicyExponential
@@ -142,6 +145,30 @@ func TestDeliverySpecValidation(t *testing.T) {
 		want: func() *apis.FieldError {
 			return apis.ErrDisallowedFields("retryAfterMax")
 		}(),
+	}, {
+		name: "valid backoffMax",
+		ctx:  deliveryBackoffMaxEnabledCtx,
+		spec: &DeliverySpec{BackoffMax: &validDuration},
+		want: nil,
+	}, {
+		name: "zero backoffMax",
+		ctx:  deliveryBackoffMaxEnabledCtx,
+		spec: &DeliverySpec{BackoffMax: pointer.String("PT0S")},
+		want: apis.ErrInvalidValue("PT0S", "backoffMax"),
+	}, {
+		name: "negative backoffMax",
+		ctx:  deliveryBackoffMaxEnabledCtx,
+		spec: &DeliverySpec{BackoffMax: pointer.String("-PT1S")},
+		want: apis.ErrInvalidValue("-PT1S", "backoffMax"),
+	}, {
+		name: "invalid backoffMax",
+		ctx:  deliveryBackoffMaxEnabledCtx,
+		spec: &DeliverySpec{BackoffMax: &invalidDuration},
+		want: apis.ErrInvalidValue(invalidDuration, "backoffMax"),
+	}, {
+		name: "disabled feature with backoffMax",
+		spec: &DeliverySpec{BackoffMax: &validDuration},
+		want: apis.ErrDisallowedFields("backoffMax"),
 	},
 		{
 			name: "valid format JSON",

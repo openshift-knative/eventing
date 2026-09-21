@@ -23,13 +23,13 @@ import (
 	"knative.dev/reconciler-test/pkg/feature"
 )
 
-func TestChannelToSinkRunsSenderAfterReadiness(t *testing.T) {
+func TestBrokerToTriggerRunsSenderAfterReadiness(t *testing.T) {
 	timings := make(map[string]feature.Timing)
-	for _, step := range ChannelToSink().Steps {
+	for _, step := range BrokerToTrigger().Steps {
 		timings[step.Name] = step.T
 	}
 
-	for _, name := range []string{"channel is ready", "subscription is ready"} {
+	for _, name := range []string{"broker is ready", "trigger is ready"} {
 		timing, ok := timings[name]
 		require.Truef(t, ok, "step %q not found", name)
 		require.Equal(t, feature.Requirement, timing)

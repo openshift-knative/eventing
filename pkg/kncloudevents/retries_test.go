@@ -22,10 +22,12 @@ import (
 	"net/http"
 	"strconv"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/rickb777/date/period"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"k8s.io/utils/pointer"
 	"knative.dev/pkg/ptr"
 
@@ -182,6 +184,93 @@ func TestRetryConfigBackoffMax(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDoWithRetriesBackoffMax(t *testing.T) {
+	tests := []struct {
+		name          string
+		delay         string
+		backoffMax    *string
+		retryAfter    string
+		retryAfterMax *string
+		wantTimes     []time.Duration
+	}{
+		{
+			name:       "exponential backoff is capped",
+			delay:      "PT1S",
+			backoffMax: ptr.String("PT2S"),
+			wantTimes:  []time.Duration{0, time.Second, 3 * time.Second, 5 * time.Second, 7 * time.Second},
+		},
+		{
+			name:      "exponential backoff without a maximum",
+			delay:     "PT1S",
+			wantTimes: []time.Duration{0, time.Second, 3 * time.Second, 7 * time.Second, 15 * time.Second},
+		},
+		{
+			name:       "maximum below the initial delay",
+			delay:      "PT3S",
+			backoffMax: ptr.String("PT2S"),
+			wantTimes:  []time.Duration{0, 2 * time.Second, 4 * time.Second, 6 * time.Second, 8 * time.Second},
+		},
+		{
+			name:          "retry after can exceed the backoff maximum",
+			delay:         "PT1S",
+			backoffMax:    ptr.String("PT2S"),
+			retryAfter:    "3",
+			retryAfterMax: ptr.String("PT5S"),
+			wantTimes:     []time.Duration{0, 3 * time.Second, 6 * time.Second, 9 * time.Second, 12 * time.Second},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			synctest.Test(t, func(t *testing.T) {
+				policy := v1.BackoffPolicyExponential
+				config, err := RetryConfigFromDeliverySpec(v1.DeliverySpec{
+					Retry:         ptr.Int32(4),
+					BackoffPolicy: &policy,
+					BackoffDelay:  &tt.delay,
+					BackoffMax:    tt.backoffMax,
+					RetryAfterMax: tt.retryAfterMax,
+				})
+				require.NoError(t, err)
+
+				start := time.Now()
+				var sentAt []time.Duration
+				// Only HTTP responses are faked; the retry loop uses its real timers.
+				c := client{Client: http.Client{Transport: retryRoundTripperFunc(func(req *http.Request) (*http.Response, error) {
+					sentAt = append(sentAt, time.Since(start))
+					resp := &http.Response{
+						StatusCode: http.StatusNoContent,
+						Header:     make(http.Header),
+						Body:       http.NoBody,
+						Request:    req,
+					}
+					if len(sentAt) <= 4 {
+						resp.StatusCode = http.StatusServiceUnavailable
+						if tt.retryAfter != "" {
+							resp.Header.Set("Retry-After", tt.retryAfter)
+						}
+					}
+					return resp, nil
+				})}}
+				req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "http://subscriber.example.com", nil)
+				require.NoError(t, err)
+
+				resp, err := c.DoWithRetries(req, &config)
+				require.NoError(t, err)
+				defer resp.Body.Close()
+				assert.Equal(t, http.StatusNoContent, resp.StatusCode)
+				assert.Equal(t, tt.wantTimes, sentAt)
+			})
+		})
+	}
+}
+
+type retryRoundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f retryRoundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
 }
 
 func TestSaturatingPeriodDuration(t *testing.T) {

@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -352,12 +353,20 @@ func TestReconciler_ReconcileKind(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	previousSubscriber := subscriber1WithBackoffMax.DeepCopy()
+	previousSubscriber.Delivery.BackoffMax = ptr.String("PT2S")
+	previousSubscription, err := fanout.SubscriberSpecToFanoutConfig(*previousSubscriber)
+	if err != nil {
+		t.Fatal(err)
+	}
+	previousSubscription.Namespace = testNS
 
 	testCases := map[string]struct {
-		imc        *v1.InMemoryChannel
-		subs       []fanout.Subscription
-		wantSubs   []fanout.Subscription
-		wantResult reconciler.Event
+		imc          *v1.InMemoryChannel
+		subs         []fanout.Subscription
+		wantSubs     []fanout.Subscription
+		wantBackoffs map[int]time.Duration
+		wantResult   reconciler.Event
 	}{
 		"with no existing subscribers, 2 added": {
 			imc: NewInMemoryChannel(imcName, testNS,
@@ -542,20 +551,11 @@ func TestReconciler_ReconcileKind(t *testing.T) {
 				WithInMemoryChannelAddress(channelServiceAddress),
 				WithInMemoryChannelDLSUnknown(),
 				WithInMemoryChannelEventPoliciesReady()),
-			subs: []fanout.Subscription{{
-				Subscriber: duckv1.Addressable{
-					URL: apis.HTTP("call1"),
-				},
-				Reply: &duckv1.Addressable{
-					URL: apis.HTTP("sink2"),
-				},
-				RetryConfig: &kncloudevents.RetryConfig{
-					RetryMax:      3,
-					BackoffPolicy: &linear,
-					BackoffDelay:  ptr.String("PT1S"),
-					BackoffMax:    ptr.String("PT2S"),
-				},
-			}},
+			subs: []fanout.Subscription{*previousSubscription},
+			wantBackoffs: map[int]time.Duration{
+				3:  3 * time.Second,
+				20: 10 * time.Second,
+			},
 			wantSubs: []fanout.Subscription{{
 				Namespace: testNS,
 				Subscriber: duckv1.Addressable{
@@ -600,7 +600,7 @@ func TestReconciler_ReconcileKind(t *testing.T) {
 				handler := newFakeMultiChannelHandler()
 				if fanoutHandler != nil {
 					fanoutHandler.SetSubscriptions(context.TODO(), tc.subs)
-					handler.SetChannelHandler(channelServiceAddress.URL.String(), fanoutHandler)
+					handler.SetChannelHandler(channelServiceAddress.URL.Host, fanoutHandler)
 				}
 				r := &Reconciler{
 					multiChannelEventHandler: handler,
@@ -615,8 +615,22 @@ func TestReconciler_ReconcileKind(t *testing.T) {
 				if channelHandler == nil {
 					t.Fatalf("Did not get handler for %s", channelServiceAddress.URL.Host)
 				}
-				if diff := cmp.Diff(tc.wantSubs, channelHandler.GetSubscriptions(context.TODO()), cmpopts.IgnoreFields(kncloudevents.RetryConfig{}, "Backoff", "CheckRetry"), cmpopts.IgnoreFields(fanout.Subscription{}, "UID")); diff != "" {
+				if fanoutHandler != nil && channelHandler != fanoutHandler {
+					t.Fatal("expected the existing channel handler to be updated in place")
+				}
+				gotSubs := channelHandler.GetSubscriptions(context.TODO())
+				if diff := cmp.Diff(tc.wantSubs, gotSubs, cmpopts.IgnoreFields(kncloudevents.RetryConfig{}, "Backoff", "CheckRetry"), cmpopts.IgnoreFields(fanout.Subscription{}, "UID")); diff != "" {
 					t.Error("unexpected subs (+want/-got)", diff)
+				}
+				if tc.wantBackoffs != nil {
+					if len(gotSubs) != 1 || gotSubs[0].RetryConfig == nil || gotSubs[0].RetryConfig.Backoff == nil {
+						t.Fatal("expected one subscription with a backoff function")
+					}
+					for attempt, want := range tc.wantBackoffs {
+						if got := gotSubs[0].RetryConfig.Backoff(attempt, nil); got != want {
+							t.Errorf("Backoff(%d) = %s, want %s", attempt, got, want)
+						}
+					}
 				}
 			})
 		}

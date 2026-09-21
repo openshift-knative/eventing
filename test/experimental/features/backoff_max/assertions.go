@@ -17,25 +17,14 @@ limitations under the License.
 package backoff_max
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
+	cetest "github.com/cloudevents/sdk-go/v2/test"
+	"knative.dev/reconciler-test/pkg/eventshub/assert"
 	"knative.dev/reconciler-test/pkg/feature"
 )
 
-func TestChannelToSinkRunsSenderAfterReadiness(t *testing.T) {
-	timings := make(map[string]feature.Timing)
-	for _, step := range ChannelToSink().Steps {
-		timings[step.Name] = step.T
-	}
-
-	for _, name := range []string{"channel is ready", "subscription is ready"} {
-		timing, ok := timings[name]
-		require.Truef(t, ok, "step %q not found", name)
-		require.Equal(t, feature.Requirement, timing)
-	}
-
-	timing, ok := timings["send event"]
-	require.True(t, ok, "step %q not found", "send event")
-	require.Equal(t, feature.Assert, timing)
+func assertRetryDelivery(f *feature.Feature, receiverName, eventID string) {
+	f.Assert("receiver rejects the first four deliveries", assert.OnStore(receiverName).
+		MatchRejectedEvent(cetest.HasId(eventID)).Exact(4))
+	f.Assert("receiver accepts the fifth delivery", assert.OnStore(receiverName).
+		MatchReceivedEvent(cetest.HasId(eventID)).Exact(1))
 }

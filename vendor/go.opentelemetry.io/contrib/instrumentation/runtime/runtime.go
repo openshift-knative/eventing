@@ -1,7 +1,7 @@
 // Copyright The OpenTelemetry Authors
 // SPDX-License-Identifier: Apache-2.0
 
-package runtime // import "go.opentelemetry.io/contrib/instrumentation/runtime"
+package runtime
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/semconv/v1.37.0/goconv"
+	"go.opentelemetry.io/otel/semconv/v1.43.0/goconv"
 
 	"go.opentelemetry.io/contrib/instrumentation/runtime/internal/deprecatedruntime"
 	"go.opentelemetry.io/contrib/instrumentation/runtime/internal/x"
@@ -70,7 +70,7 @@ func Start(opts ...Option) error {
 	c := newConfig(opts...)
 	meter := c.MeterProvider.Meter(
 		ScopeName,
-		metric.WithInstrumentationVersion(Version()),
+		metric.WithInstrumentationVersion(Version),
 	)
 	if x.DeprecatedRuntimeMetrics.Enabled() {
 		if err := deprecatedruntime.Start(meter, c.MinimumReadMemStatsInterval); err != nil {

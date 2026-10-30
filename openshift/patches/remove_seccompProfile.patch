@@ -1,0 +1,217 @@
+diff --git a/config/brokers/mt-channel-broker/deployments/broker-filter.yaml b/config/brokers/mt-channel-broker/deployments/broker-filter.yaml
+index f208d9afa..5a38bea70 100644
+--- a/config/brokers/mt-channel-broker/deployments/broker-filter.yaml
++++ b/config/brokers/mt-channel-broker/deployments/broker-filter.yaml
+@@ -108,8 +108,6 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+ 
+ ---
+ 
+diff --git a/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml b/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml
+index 2fec3bdf2..9ab2ffea6 100644
+--- a/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml
++++ b/config/brokers/mt-channel-broker/deployments/broker-ingress.yaml
+@@ -108,8 +108,6 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+ 
+ ---
+ 
+diff --git a/config/brokers/mt-channel-broker/deployments/controller.yaml b/config/brokers/mt-channel-broker/deployments/controller.yaml
+index 2235e02dc..06ca7df6d 100644
+--- a/config/brokers/mt-channel-broker/deployments/controller.yaml
++++ b/config/brokers/mt-channel-broker/deployments/controller.yaml
+@@ -80,8 +80,6 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+ 
+         livenessProbe:
+           httpGet:
+diff --git a/config/channels/in-memory-channel/deployments/controller.yaml b/config/channels/in-memory-channel/deployments/controller.yaml
+index 08ff23ad9..018ae6bff 100644
+--- a/config/channels/in-memory-channel/deployments/controller.yaml
++++ b/config/channels/in-memory-channel/deployments/controller.yaml
+@@ -81,8 +81,6 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+ 
+         ports:
+         - name: metrics
+diff --git a/config/channels/in-memory-channel/deployments/dispatcher.yaml b/config/channels/in-memory-channel/deployments/dispatcher.yaml
+index f0eb20d16..cf259fa55 100644
+--- a/config/channels/in-memory-channel/deployments/dispatcher.yaml
++++ b/config/channels/in-memory-channel/deployments/dispatcher.yaml
+@@ -108,5 +108,3 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+diff --git a/config/core/deployments/controller.yaml b/config/core/deployments/controller.yaml
+index 77ff138b5..ae0b87de1 100644
+--- a/config/core/deployments/controller.yaml
++++ b/config/core/deployments/controller.yaml
+@@ -96,8 +96,6 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+ 
+         livenessProbe:
+           httpGet:
+diff --git a/config/core/deployments/job-sink.yaml b/config/core/deployments/job-sink.yaml
+index 20eefe6ca..148e5de6e 100644
+--- a/config/core/deployments/job-sink.yaml
++++ b/config/core/deployments/job-sink.yaml
+@@ -120,8 +120,6 @@ spec:
+             capabilities:
+               drop:
+               - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+ 
+       serviceAccountName: job-sink
+ 
+diff --git a/config/core/deployments/pingsource-mt-adapter.yaml b/config/core/deployments/pingsource-mt-adapter.yaml
+index 0f62925c3..3ebab545c 100644
+--- a/config/core/deployments/pingsource-mt-adapter.yaml
++++ b/config/core/deployments/pingsource-mt-adapter.yaml
+@@ -103,8 +103,6 @@ spec:
+             capabilities:
+               drop:
+               - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+ 
+           livenessProbe:
+             httpGet:
+diff --git a/config/core/deployments/webhook.yaml b/config/core/deployments/webhook.yaml
+index fd26a0e41..bf885fc13 100644
+--- a/config/core/deployments/webhook.yaml
++++ b/config/core/deployments/webhook.yaml
+@@ -101,8 +101,6 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+ 
+         ports:
+         - name: https-webhook
+diff --git a/config/post-install/storage-version-migrator.yaml b/config/post-install/storage-version-migrator.yaml
+index 1d2b058f6..a65e89d75 100644
+--- a/config/post-install/storage-version-migrator.yaml
++++ b/config/post-install/storage-version-migrator.yaml
+@@ -65,5 +65,3 @@ spec:
+             capabilities:
+               drop:
+               - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+diff --git a/config/tools/appender/appender.yaml b/config/tools/appender/appender.yaml
+index 68c07fdb7..f82b42353 100644
+--- a/config/tools/appender/appender.yaml
++++ b/config/tools/appender/appender.yaml
+@@ -34,5 +34,3 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+diff --git a/config/tools/event-display/event-display.yaml b/config/tools/event-display/event-display.yaml
+index eb8861971..eb6476759 100644
+--- a/config/tools/event-display/event-display.yaml
++++ b/config/tools/event-display/event-display.yaml
+@@ -31,5 +31,3 @@ spec:
+           capabilities:
+             drop:
+             - ALL
+-          seccompProfile:
+-            type: RuntimeDefault
+diff --git a/config/tools/heartbeats/heartbeats.yaml b/config/tools/heartbeats/heartbeats.yaml
+index c0753a3c8..1c0ba857e 100644
+--- a/config/tools/heartbeats/heartbeats.yaml
++++ b/config/tools/heartbeats/heartbeats.yaml
+@@ -34,8 +34,6 @@ spec:
+             capabilities:
+               drop:
+               - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+ 
+   sink:
+     ref:
+diff --git a/config/tools/mqttsource/mqttsource.yaml b/config/tools/mqttsource/mqttsource.yaml
+index 15f009829..42b4d3e27 100644
+--- a/config/tools/mqttsource/mqttsource.yaml
++++ b/config/tools/mqttsource/mqttsource.yaml
+@@ -30,8 +30,6 @@ spec:
+             capabilities:
+               drop:
+                 - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+ 
+   sink:
+     ref:
+diff --git a/config/tools/recordevents/recordevents.yaml b/config/tools/recordevents/recordevents.yaml
+index 3661a16c8..23371182d 100644
+--- a/config/tools/recordevents/recordevents.yaml
++++ b/config/tools/recordevents/recordevents.yaml
+@@ -44,5 +44,3 @@ spec:
+         capabilities:
+           drop:
+           - ALL
+-        seccompProfile:
+-          type: RuntimeDefault
+diff --git a/config/tools/websocket-source/websocket-source.yaml b/config/tools/websocket-source/websocket-source.yaml
+index 844c39845..1a590f667 100644
+--- a/config/tools/websocket-source/websocket-source.yaml
++++ b/config/tools/websocket-source/websocket-source.yaml
+@@ -30,8 +30,6 @@ spec:
+             capabilities:
+               drop:
+               - ALL
+-            seccompProfile:
+-              type: RuntimeDefault
+ 
+   sink:
+     ref:
+diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter.go b/pkg/reconciler/apiserversource/resources/receive_adapter.go
+index 4bb823647..23d37305a 100644
+--- a/pkg/reconciler/apiserversource/resources/receive_adapter.go
++++ b/pkg/reconciler/apiserversource/resources/receive_adapter.go
+@@ -120,7 +120,6 @@ func MakeReceiveAdapter(args *ReceiveAdapterArgs) (*appsv1.Deployment, error) {
+ 								ReadOnlyRootFilesystem:   ptr.Bool(true),
+ 								RunAsNonRoot:             ptr.Bool(true),
+ 								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+-								SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
+ 							},
+ 						},
+ 					},
+diff --git a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
+index 9b25dbfb6..1db66692a 100644
+--- a/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
++++ b/pkg/reconciler/apiserversource/resources/receive_adapter_test.go
+@@ -205,7 +205,6 @@ O2dgzikq8iSy1BlRsVw=
+ 								ReadOnlyRootFilesystem:   ptr.Bool(true),
+ 								RunAsNonRoot:             ptr.Bool(true),
+ 								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+-								SeccompProfile:           &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
+ 							},
+ 						},
+ 					},

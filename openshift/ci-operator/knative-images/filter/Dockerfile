@@ -31,6 +31,7 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing Broker Filter" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing Broker Filter" \
-      io.openshift.tags="broker-filter"
+      io.openshift.tags="broker-filter" \
+      cpe="cpe:/a:redhat:openshift_serverless:1.35::el8"
 
 ENTRYPOINT ["/usr/bin/filter"]

@@ -31,6 +31,7 @@ LABEL \
       description="Red Hat OpenShift Serverless 1 Eventing In Memory Channel Dispatcher" \
       io.k8s.display-name="Red Hat OpenShift Serverless 1 Eventing In Memory Channel Dispatcher" \
       io.k8s.description="Red Hat OpenShift Serverless Eventing In Memory Channel Dispatcher" \
-      io.openshift.tags="in-memory-channel-dispatcher"
+      io.openshift.tags="in-memory-channel-dispatcher" \
+      cpe="cpe:/a:redhat:openshift_serverless:1.35::el8"
 
 ENTRYPOINT ["/usr/bin/channel_dispatcher"]

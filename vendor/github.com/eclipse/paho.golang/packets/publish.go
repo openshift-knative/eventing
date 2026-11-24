@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v2.0
+ *  and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    https://www.eclipse.org/legal/epl-2.0/
+ *  and the Eclipse Distribution License is available at
+ *    http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ *  SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+ */
+
 package packets
 
 import (
@@ -61,15 +76,20 @@ func (p *Publish) Unpack(r *bytes.Buffer) error {
 }
 
 // Buffers is the implementation of the interface required function for a packet
-func (p *Publish) Buffers() net.Buffers {
+func (p *Publish) Buffers() (net.Buffers, error) {
 	var b bytes.Buffer
 	writeString(p.Topic, &b)
 	if p.QoS > 0 {
 		_ = writeUint16(p.PacketID, &b)
 	}
-	idvp := p.Properties.Pack(PUBLISH)
-	encodeVBIdirect(len(idvp), &b)
-	return net.Buffers{b.Bytes(), idvp, p.Payload}
+	idvp, err := p.Properties.Pack(PUBLISH)
+	if err != nil {
+		return nil, err
+	}
+	if err := encodeVBIdirect(len(idvp), &b); err != nil {
+		return nil, err
+	}
+	return net.Buffers{b.Bytes(), idvp, p.Payload}, nil
 
 }
 

@@ -1,12 +1,34 @@
+/*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v2.0
+ *  and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    https://www.eclipse.org/legal/epl-2.0/
+ *  and the Eclipse Distribution License is available at
+ *    http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ *  SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+ */
+
 package packets
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net"
 	"sync"
 )
+
+// ErrEncoding identifies a failure to encode a packet, before WriteTo calls the
+// destination writer. Retrying the same packet without correcting it will fail.
+// WriteTo wraps the underlying encoding error; errors from the destination writer
+// are returned unchanged and are not classified as encoding failures.
+var ErrEncoding = errors.New("packet encoding failed")
 
 // PacketType is a type alias to byte representing the different
 // MQTT control packet types
@@ -37,7 +59,7 @@ type (
 	// Packet is the interface defining the unique parts of a controlpacket
 	Packet interface {
 		Unpack(*bytes.Buffer) error
-		Buffers() net.Buffers
+		Buffers() (net.Buffers, error)
 		WriteTo(io.Writer) (int64, error)
 	}
 
@@ -72,10 +94,15 @@ func NewThreadSafeConn(c net.Conn) net.Conn {
 // WriteTo operates on a FixedHeader and takes the option values and produces
 // the wire format byte that represents these.
 func (f *FixedHeader) WriteTo(w io.Writer) (int64, error) {
+	vbi, err := encodeVBI(f.remainingLength)
+	if err != nil {
+		return 0, fmt.Errorf("%w: %w", ErrEncoding, err)
+	}
+
 	if _, err := w.Write([]byte{byte(f.Type)<<4 | f.Flags}); err != nil {
 		return 0, err
 	}
-	if _, err := w.Write(encodeVBI(f.remainingLength)); err != nil {
+	if _, err := w.Write(vbi); err != nil {
 		return 0, err
 	}
 
@@ -292,18 +319,16 @@ func ReadPacket(r io.Reader) (*ControlPacket, error) {
 		return nil, err
 	}
 
-	var content bytes.Buffer
-	content.Grow(cp.remainingLength)
-
-	n, err := io.CopyN(&content, r, int64(cp.remainingLength))
+	b := make([]byte, cp.remainingLength)
+	n, err := io.ReadFull(r, b)
 	if err != nil {
 		return nil, err
 	}
 
-	if n != int64(cp.remainingLength) {
+	if n != cp.remainingLength {
 		return nil, fmt.Errorf("failed to read packet, expected %d bytes, read %d", cp.remainingLength, n)
 	}
-	err = cp.Content.Unpack(&content)
+	err = cp.Content.Unpack(bytes.NewBuffer(b))
 	if err != nil {
 		return nil, err
 	}
@@ -311,10 +336,14 @@ func ReadPacket(r io.Reader) (*ControlPacket, error) {
 }
 
 // WriteTo writes a packet to an io.Writer, handling packing all the parts of
-// a control packet.
+// a control packet. Encoding failures wrap ErrEncoding and occur before any
+// call to the destination writer.
 func (c *ControlPacket) WriteTo(w io.Writer) (int64, error) {
 	c.remainingLength = 0 // ignore previous remainingLength (if any)
-	buffers := c.Content.Buffers()
+	buffers, err := c.Content.Buffers()
+	if err != nil {
+		return 0, fmt.Errorf("%w: %w", ErrEncoding, err)
+	}
 	for _, b := range buffers {
 		c.remainingLength += len(b)
 	}
@@ -345,7 +374,12 @@ func (c *ControlPacket) WriteTo(w io.Writer) (int64, error) {
 	return buffers.WriteTo(w)
 }
 
-func encodeVBI(length int) []byte {
+// encodeVBI - Encodes Variable Byte Integer (as per spec clause 1.5.5)
+func encodeVBI(length int) ([]byte, error) {
+	// Spec states max packet size is 268,435,455 bytes. Sending length outside this range is invalid.
+	if length < 0 || length > 268435455 {
+		return nil, errors.New("invalid VBI length")
+	}
 	var x int
 	b := [4]byte{}
 	for {
@@ -357,12 +391,17 @@ func encodeVBI(length int) []byte {
 		b[x] = digit
 		x++
 		if length == 0 {
-			return b[:x]
+			return b[:x], nil
 		}
 	}
 }
 
-func encodeVBIdirect(length int, buf *bytes.Buffer) {
+// encodeVBIdirect - Writes length of Variable Byte Integer to buffer (as per spec clause 1.5.5)
+func encodeVBIdirect(length int, buf *bytes.Buffer) error {
+	// Spec states max packet size is 268,435,455 bytes. Sending length outside this range is invalid.
+	if length < 0 || length > 268435455 {
+		return errors.New("invalid VBI length")
+	}
 	var x int
 	b := [4]byte{}
 	for {
@@ -375,11 +414,12 @@ func encodeVBIdirect(length int, buf *bytes.Buffer) {
 		x++
 		if length == 0 {
 			buf.Write(b[:x])
-			return
+			return nil
 		}
 	}
 }
 
+// getVBI - retrieves Variable Byte Integer from reader (as per spec clause 1.5.5)
 func getVBI(r io.Reader) (*bytes.Buffer, error) {
 	var ret bytes.Buffer
 	digit := [1]byte{}
@@ -392,9 +432,13 @@ func getVBI(r io.Reader) (*bytes.Buffer, error) {
 		if digit[0] <= 0x7f {
 			return &ret, nil
 		}
+		if ret.Len() > 3 { // Max bytes in length is 4, 4th byte must hot have high bit set
+			return nil, errors.New("malformed Variable Byte Integer")
+		}
 	}
 }
 
+// decodeVBI - Variable Byte Integer as per spec clause 1.5.5
 func decodeVBI(r *bytes.Buffer) (int, error) {
 	var vbi uint32
 	var multiplier uint32
@@ -408,6 +452,9 @@ func decodeVBI(r *bytes.Buffer) (int, error) {
 			break
 		}
 		multiplier += 7
+		if multiplier >= 27 {
+			return 0, errors.New("malformed Variable Byte Integer") // maximum of 4 bytes may be used (see example in spec)
+		}
 	}
 	return int(vbi), nil
 }
@@ -433,11 +480,19 @@ func writeUint32(u uint32, b *bytes.Buffer) error {
 }
 
 func writeString(s string, b *bytes.Buffer) {
+	// Due to the 16 bit header strings are limited to 65535 bytes
+	if len(s) > 65535 {
+		s = s[:65535]
+	}
 	writeUint16(uint16(len(s)), b)
 	b.WriteString(s)
 }
 
 func writeBinary(d []byte, b *bytes.Buffer) {
+	// Due to the 16 bit header strings are limited to 65535 bytes
+	if len(d) > 65535 {
+		d = d[:65535]
+	}
 	writeUint16(uint16(len(d)), b)
 	b.Write(d)
 }
@@ -480,13 +535,12 @@ func readBinary(b *bytes.Buffer) ([]byte, error) {
 		return nil, err
 	}
 
-	var s bytes.Buffer
-	s.Grow(int(size))
-	if _, err := io.CopyN(&s, b, int64(size)); err != nil {
+	s := make([]byte, size)
+	if _, err := io.ReadFull(b, s); err != nil {
 		return nil, err
 	}
 
-	return s.Bytes(), nil
+	return s, nil
 }
 
 func readString(b *bytes.Buffer) (string, error) {

@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v2.0
+ *  and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    https://www.eclipse.org/legal/epl-2.0/
+ *  and the Eclipse Distribution License is available at
+ *    http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ *  SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+ */
+
 package packets
 
 import (
@@ -41,7 +56,7 @@ func (p *Puback) String() string {
 	return b.String()
 }
 
-//Unpack is the implementation of the interface required function for a packet
+// Unpack is the implementation of the interface required function for a packet
 func (p *Puback) Unpack(r *bytes.Buffer) error {
 	var err error
 	success := r.Len() == 2
@@ -67,17 +82,23 @@ func (p *Puback) Unpack(r *bytes.Buffer) error {
 }
 
 // Buffers is the implementation of the interface required function for a packet
-func (p *Puback) Buffers() net.Buffers {
+func (p *Puback) Buffers() (net.Buffers, error) {
 	var b bytes.Buffer
 	writeUint16(p.PacketID, &b)
 	b.WriteByte(p.ReasonCode)
-	idvp := p.Properties.Pack(PUBACK)
-	propLen := encodeVBI(len(idvp))
+	idvp, err := p.Properties.Pack(PUBACK)
+	if err != nil {
+		return nil, err
+	}
+	propLen, err := encodeVBI(len(idvp))
+	if err != nil {
+		return nil, err
+	}
 	n := net.Buffers{b.Bytes(), propLen}
 	if len(idvp) > 0 {
 		n = append(n, idvp)
 	}
-	return n
+	return n, nil
 }
 
 // WriteTo is the implementation of the interface required function for a packet

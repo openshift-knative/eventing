@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v2.0
+ *  and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    https://www.eclipse.org/legal/epl-2.0/
+ *  and the Eclipse Distribution License is available at
+ *    http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ *  SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+ */
+
 package packets
 
 import (
@@ -228,11 +243,11 @@ func (p *Properties) String() string {
 
 // Pack takes all the defined properties for an Properties and produces
 // a slice of bytes representing the wire format for the information
-func (i *Properties) Pack(p byte) []byte {
+func (i *Properties) Pack(p byte) ([]byte, error) {
 	var b bytes.Buffer
 
 	if i == nil {
-		return nil
+		return nil, nil // nothing to write
 	}
 
 	if p == PUBLISH {
@@ -270,7 +285,9 @@ func (i *Properties) Pack(p byte) []byte {
 	if p == PUBLISH || p == SUBSCRIBE {
 		if i.SubscriptionIdentifier != nil {
 			b.WriteByte(PropSubscriptionIdentifier)
-			encodeVBIdirect(*i.SubscriptionIdentifier, &b)
+			if err := encodeVBIdirect(*i.SubscriptionIdentifier, &b); err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -285,11 +302,6 @@ func (i *Properties) Pack(p byte) []byte {
 			writeUint16(*i.TopicAliasMaximum, &b)
 		}
 
-		if i.MaximumQOS != nil {
-			b.WriteByte(PropMaximumQOS)
-			b.WriteByte(*i.MaximumQOS)
-		}
-
 		if i.MaximumPacketSize != nil {
 			b.WriteByte(PropMaximumPacketSize)
 			writeUint32(*i.MaximumPacketSize, &b)
@@ -297,6 +309,11 @@ func (i *Properties) Pack(p byte) []byte {
 	}
 
 	if p == CONNACK {
+		if i.MaximumQOS != nil {
+			b.WriteByte(PropMaximumQOS)
+			b.WriteByte(*i.MaximumQOS)
+		}
+
 		if i.AssignedClientID != "" {
 			b.WriteByte(PropAssignedClientID)
 			writeString(i.AssignedClientID, &b)
@@ -389,18 +406,18 @@ func (i *Properties) Pack(p byte) []byte {
 		writeString(v.Value, &b)
 	}
 
-	return b.Bytes()
+	return b.Bytes(), nil
 }
 
 // PackBuf will create a bytes.Buffer of the packed properties, it
 // will only pack the properties appropriate to the packet type p
 // even though other properties may exist, it will silently ignore
 // them
-func (i *Properties) PackBuf(p byte) *bytes.Buffer {
+func (i *Properties) PackBuf(p byte) (*bytes.Buffer, error) {
 	var b bytes.Buffer
 
 	if i == nil {
-		return nil
+		return nil, nil
 	}
 
 	if p == PUBLISH {
@@ -438,7 +455,9 @@ func (i *Properties) PackBuf(p byte) *bytes.Buffer {
 	if p == PUBLISH || p == SUBSCRIBE {
 		if i.SubscriptionIdentifier != nil {
 			b.WriteByte(PropSubscriptionIdentifier)
-			encodeVBIdirect(*i.SubscriptionIdentifier, &b)
+			if err := encodeVBIdirect(*i.SubscriptionIdentifier, &b); err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -453,11 +472,6 @@ func (i *Properties) PackBuf(p byte) *bytes.Buffer {
 			writeUint16(*i.TopicAliasMaximum, &b)
 		}
 
-		if i.MaximumQOS != nil {
-			b.WriteByte(PropMaximumQOS)
-			b.WriteByte(*i.MaximumQOS)
-		}
-
 		if i.MaximumPacketSize != nil {
 			b.WriteByte(PropMaximumPacketSize)
 			writeUint32(*i.MaximumPacketSize, &b)
@@ -465,6 +479,11 @@ func (i *Properties) PackBuf(p byte) *bytes.Buffer {
 	}
 
 	if p == CONNACK {
+		if i.MaximumQOS != nil {
+			b.WriteByte(PropMaximumQOS)
+			b.WriteByte(*i.MaximumQOS)
+		}
+
 		if i.AssignedClientID != "" {
 			b.WriteByte(PropAssignedClientID)
 			writeString(i.AssignedClientID, &b)
@@ -557,7 +576,7 @@ func (i *Properties) PackBuf(p byte) *bytes.Buffer {
 		writeString(v.Value, &b)
 	}
 
-	return &b
+	return &b, nil
 }
 
 // Unpack takes a buffer of bytes and reads out the defined properties
@@ -792,7 +811,7 @@ var ValidProperties = map[byte]map[byte]struct{}{
 	PropReasonString:           {CONNACK: {}, PUBACK: {}, PUBREC: {}, PUBREL: {}, PUBCOMP: {}, SUBACK: {}, UNSUBACK: {}, DISCONNECT: {}, AUTH: {}},
 	PropReceiveMaximum:         {CONNECT: {}, CONNACK: {}},
 	PropTopicAliasMaximum:      {CONNECT: {}, CONNACK: {}},
-	PropMaximumQOS:             {CONNECT: {}, CONNACK: {}},
+	PropMaximumQOS:             {CONNACK: {}},
 	PropMaximumPacketSize:      {CONNECT: {}, CONNACK: {}},
 	PropUser:                   {CONNECT: {}, CONNACK: {}, PUBLISH: {}, PUBACK: {}, PUBREC: {}, PUBREL: {}, PUBCOMP: {}, SUBSCRIBE: {}, UNSUBSCRIBE: {}, SUBACK: {}, UNSUBACK: {}, DISCONNECT: {}, AUTH: {}},
 }

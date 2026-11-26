@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation
+ *
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v2.0
+ *  and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    https://www.eclipse.org/legal/epl-2.0/
+ *  and the Eclipse Distribution License is available at
+ *    http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ *  SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+ */
+
 package packets
 
 import (
@@ -85,7 +100,7 @@ func (c *Connect) UnpackFlags(b byte) {
 	c.UsernameFlag = 1&(b>>7) > 0
 }
 
-//Unpack is the implementation of the interface required function for a packet
+// Unpack is the implementation of the interface required function for a packet
 func (c *Connect) Unpack(r *bytes.Buffer) error {
 	var err error
 
@@ -151,21 +166,31 @@ func (c *Connect) Unpack(r *bytes.Buffer) error {
 }
 
 // Buffers is the implementation of the interface required function for a packet
-func (c *Connect) Buffers() net.Buffers {
+func (c *Connect) Buffers() (net.Buffers, error) {
 	var cp bytes.Buffer
 
 	writeString(c.ProtocolName, &cp)
 	cp.WriteByte(c.ProtocolVersion)
 	cp.WriteByte(c.PackFlags())
 	writeUint16(c.KeepAlive, &cp)
-	idvp := c.Properties.Pack(CONNECT)
-	encodeVBIdirect(len(idvp), &cp)
+	idvp, err := c.Properties.Pack(CONNECT)
+	if err != nil {
+		return nil, err
+	}
+	if err = encodeVBIdirect(len(idvp), &cp); err != nil {
+		return nil, err
+	}
 	cp.Write(idvp)
 
 	writeString(c.ClientID, &cp)
 	if c.WillFlag {
-		willIdvp := c.WillProperties.Pack(CONNECT)
-		encodeVBIdirect(len(willIdvp), &cp)
+		willIdvp, err := c.WillProperties.Pack(CONNECT)
+		if err != nil {
+			return nil, err
+		}
+		if err = encodeVBIdirect(len(willIdvp), &cp); err != nil {
+			return nil, err
+		}
 		cp.Write(willIdvp)
 		writeString(c.WillTopic, &cp)
 		writeBinary(c.WillMessage, &cp)
@@ -177,7 +202,7 @@ func (c *Connect) Buffers() net.Buffers {
 		writeBinary(c.Password, &cp)
 	}
 
-	return net.Buffers{cp.Bytes()}
+	return net.Buffers{cp.Bytes()}, nil
 }
 
 // WriteTo is the implementation of the interface required function for a packet
